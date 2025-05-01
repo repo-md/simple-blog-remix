@@ -5,6 +5,84 @@
 const MEDIA_URL_PREFIX = "/_repo/medias/";
 const DEBUG = true;
 
+// Helper function to find probable MIME type from file path
+function findProbableMimeType(path) {
+  const ext = path.split(".").pop().toLowerCase();
+  const mimeTypes = {
+    // Images
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    gif: "image/gif",
+    webp: "image/webp",
+    svg: "image/svg+xml",
+    ico: "image/x-icon",
+    bmp: "image/bmp",
+    tiff: "image/tiff",
+    tif: "image/tiff",
+
+    // Videos
+    mp4: "video/mp4",
+    webm: "video/webm",
+    ogg: "video/ogg",
+    mov: "video/quicktime",
+
+    // Audio
+    mp3: "audio/mpeg",
+    wav: "audio/wav",
+    oga: "audio/ogg",
+    m4a: "audio/mp4",
+
+    // Documents
+    pdf: "application/pdf",
+    json: "application/json",
+    xml: "application/xml",
+    txt: "text/plain",
+    html: "text/html",
+    css: "text/css",
+    js: "application/javascript",
+
+    // Archives
+    zip: "application/zip",
+    rar: "application/x-rar-compressed",
+    "7z": "application/x-7z-compressed",
+    tar: "application/x-tar",
+    gz: "application/gzip",
+  };
+
+  return mimeTypes[ext] || "application/octet-stream";
+}
+
+// Helper function to create browser-friendly headers
+function createBrowserFriendlyHeaders(originalHeaders, mediaPath) {
+  const newHeaders = new Headers(originalHeaders);
+
+  // Get content type from original headers or determine from file extension
+  let contentType = originalHeaders.get("Content-Type");
+  if (!contentType) {
+    contentType = findProbableMimeType(mediaPath);
+  }
+
+  // Set content type
+  newHeaders.set("Content-Type", contentType);
+
+  // Remove or set Content-Disposition to inline for browser display
+  newHeaders.delete("Content-Disposition");
+
+  // For certain file types, you might want to force download
+  // Uncomment if needed:
+  // const forceDownloadTypes = ['zip', 'rar', '7z', 'tar', 'gz'];
+  // const ext = mediaPath.split('.').pop().toLowerCase();
+  // if (forceDownloadTypes.includes(ext)) {
+  //   newHeaders.set('Content-Disposition', 'attachment');
+  // }
+
+  // Set cache control
+  newHeaders.set("Cache-Control", "public, max-age=31536000");
+
+  return newHeaders;
+}
+
 // Unified handler for Cloudflare requests
 export async function handleCloudflareRequest(request, getR2MediaUrl) {
   if (DEBUG) {
@@ -24,13 +102,17 @@ export async function handleCloudflareRequest(request, getR2MediaUrl) {
   }
 
   if (DEBUG) {
-    console.log(`[MediaProxy] Detected media request, proxying to asset server`);
+    console.log(
+      `[MediaProxy] Detected media request, proxying to asset server`
+    );
   }
 
   // Get the media path and R2 URL
   const mediaPath = url.pathname.replace(MEDIA_URL_PREFIX, "");
   if (DEBUG) {
-    console.log(`[MediaProxy] Extracted media path: ${mediaPath} from ${url.pathname}`);
+    console.log(
+      `[MediaProxy] Extracted media path: ${mediaPath} from ${url.pathname}`
+    );
   }
 
   const r2Url = getR2MediaUrl(mediaPath);
@@ -52,18 +134,17 @@ export async function handleCloudflareRequest(request, getR2MediaUrl) {
       console.log(`[MediaProxy] R2 response status: ${response.status}`);
     }
 
-    // Return the response with caching
+    // Create browser-friendly headers
+    const headers = createBrowserFriendlyHeaders(response.headers, mediaPath);
+
+    // Return the response with browser-friendly headers
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
-      headers: {
-        ...Object.fromEntries(response.headers),
-        "Cache-Control": "public, max-age=31536000", // Cache for 1 year
-      },
+      headers: headers,
     });
   } catch (error) {
     console.error(`[MediaProxy] Error proxying to asset server:`, error);
     return new Response("Asset not found", { status: 404 });
   }
 }
-
