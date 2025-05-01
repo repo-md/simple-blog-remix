@@ -106,7 +106,8 @@ export class RepoMD {
   // Legacy support for older code
   async getR2MediaUrl(path) {
     await this.ensureLatestRev();
-    return this.getR2Url(`/_media/${path}`);
+    const url = this.getR2Url(`/_media/${path}`);
+    return url; // Ensure we return the resolved string, not a Promise
   }
 
   // Fetch a JSON file from R2 storage
@@ -169,7 +170,11 @@ export class RepoMD {
     if (this.debug) {
       console.log(`[RepoMD] Handling Cloudflare request: ${request.url}`);
     }
-    return await handleMediaRequest(request, this.getR2MediaUrl.bind(this));
+    // Create a wrapper function that resolves the Promise from getR2MediaUrl
+    const getResolvedR2MediaUrl = async (path) => {
+      return await this.getR2MediaUrl(path);
+    };
+    return await handleMediaRequest(request, getResolvedR2MediaUrl);
   }
 }
 

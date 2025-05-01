@@ -124,7 +124,8 @@ export async function handleCloudflareRequest(request, getR2MediaUrl) {
     );
   }
 
-  const r2Url = getR2MediaUrl(mediaPath);
+  // Wait for the Promise to resolve
+  const r2Url = await getR2MediaUrl(mediaPath);
   if (DEBUG) {
     console.log(`[MediaProxy] Proxying to R2 URL: ${r2Url}`);
   }
