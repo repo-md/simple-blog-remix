@@ -1,6 +1,9 @@
 import { json } from "@remix-run/cloudflare";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
+import { getAllPosts, sortPostsByDate } from "~/lib/api";
+import type { Post } from "~/types/blog";
+import ErrorBoundaryComponent from "~/components/ErrorBoundary";
 
 export const meta: MetaFunction = () => {
   return [
@@ -9,22 +12,11 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-type Post = {
-  id: string;
-  title: string;
-  date: string;
-  excerpt: string;
-  content: string;
-};
-
 export const loader: LoaderFunction = async () => {
   try {
-    const response = await fetch("https://r2.repo.md/iplanwebsites/680e97604a0559a192640d2c/68128c49e236a2b8ef65b526/content/posts.json");
-    if (!response.ok) {
-      throw new Error(`Failed to fetch posts: ${response.statusText}`);
-    }
-    const posts = await response.json();
-    return json({ posts });
+    const posts = await getAllPosts();
+    const sortedPosts = sortPostsByDate(posts);
+    return json({ posts: sortedPosts });
   } catch (error) {
     console.error("Error loading posts:", error);
     return json({ posts: [] });
@@ -70,4 +62,20 @@ export default function BlogIndex() {
       )}
     </div>
   );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  
+  if (isRouteErrorResponse(error)) {
+    return <ErrorBoundaryComponent 
+      status={error.status}
+      statusText={error.statusText}
+      message="We're having trouble loading the blog posts. Please try again later."
+    />;
+  }
+  
+  return <ErrorBoundaryComponent 
+    message="There was an error loading the blog posts. Please try again later."
+  />;
 }

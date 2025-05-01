@@ -1,26 +1,15 @@
 import { json } from "@remix-run/cloudflare";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
-
-type Post = {
-  id: string;
-  title: string;
-  date: string;
-  excerpt: string;
-  content: string;
-};
+import { getPostBySlug } from "~/lib/api";
+import type { Post } from "~/types/blog";
+import ErrorBoundaryComponent from "~/components/ErrorBoundary";
 
 export const loader: LoaderFunction = async ({ params }) => {
   const { postId } = params;
   
   try {
-    const response = await fetch("https://r2.repo.md/iplanwebsites/680e97604a0559a192640d2c/68128c49e236a2b8ef65b526/content/posts.json");
-    if (!response.ok) {
-      throw new Error(`Failed to fetch posts: ${response.statusText}`);
-    }
-    
-    const posts = await response.json();
-    const post = posts.find((p: Post) => p.id === postId);
+    const post = await getPostBySlug(postId);
     
     if (!post) {
       throw new Response("Post not found", { status: 404 });
@@ -84,4 +73,22 @@ export default function BlogPost() {
       </article>
     </div>
   );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  
+  if (isRouteErrorResponse(error)) {
+    if (error.status === 404) {
+      return <ErrorBoundaryComponent 
+        status={404}
+        statusText="Post Not Found"
+        message="Sorry, the blog post you're looking for doesn't exist."
+      />;
+    }
+  }
+  
+  return <ErrorBoundaryComponent 
+    message="There was an error loading this blog post. Please try again later."
+  />;
 }
