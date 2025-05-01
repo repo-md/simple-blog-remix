@@ -1,7 +1,7 @@
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
-import { getRecentPosts } from "~/lib/api";
+import { getRecentPosts } from "../../repo/api";
 import RecentPosts from "~/components/RecentPosts";
 import type { Post } from "~/types/blog";
 

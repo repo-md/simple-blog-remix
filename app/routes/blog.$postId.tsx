@@ -1,7 +1,7 @@
 import { json } from "@remix-run/cloudflare";
 import { Link, useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
-import { getPostBySlug } from "~/lib/api";
+import { getPostBySlug } from "../../repo/api";
 import type { Post } from "~/types/blog";
 import ErrorBoundaryComponent from "~/components/ErrorBoundary";
 

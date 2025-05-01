@@ -3,7 +3,16 @@
  */
 
 const POSTS_API_URL =
-  "https://r2.repo.md/iplanwebsites/680e97604a0559a192640d2c/68128c49e236a2b8ef65b526/content/posts.json";
+  "https://r2.repo.md/iplanwebsites/680e97604a0559a192640d2c/68135d183eb888fca85d2644/posts.json";
+
+export function getR2Url(
+  path,
+  org = "iplanwebsites",
+  project = "680e97604a0559a192640d2c",
+  rev = "68135d183eb888fca85d2644"
+) {
+  return `https://r2.repo.md/${org}/${project}/${rev}/_media/${path}`;
+}
 
 /**
  * Fetch all blog posts

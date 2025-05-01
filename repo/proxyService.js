@@ -7,14 +7,8 @@ const DEBUG = true;
 const R2_BASE_URL =
   "https://r2.repo.md/iplanwebsites/680e97604a0559a192640d2c/68129c0ae236a2b8ef65b52e/content/_media/"; // + // 0063e8bdfdd379a2fa762b160639ea600c6420dcce7aa7943ae3073a135e7dec-md.jpeg
 
-function getR2Url(
-  path,
-  org = "iplanwebsites",
-  project = "680e97604a0559a192640d2c",
-  rev = "6812c8cae236a2b8ef65b533"
-) {
-  return `https://r2.repo.md/${org}/${project}/${rev}/_media/${path}`;
-}
+// https://r2.repo.md/iplanwebsites/680e97604a0559a192640d2c/68135d183eb888fca85d2644/posts.json
+import { getR2Url } from "./api.js";
 
 // Determines if a request is for a media asset
 export function isMediaRequest(request) {

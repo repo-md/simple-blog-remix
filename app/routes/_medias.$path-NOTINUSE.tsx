@@ -1,6 +1,6 @@
 // Route for media asset proxy
 import { LoaderFunction } from "@remix-run/cloudflare";
-import { proxyToAssetServer } from "../../proxyService";
+import { proxyToAssetServer } from "../../repo/proxyService";
 
 // This route handles media asset requests and proxies them to R2
 // The $path parameter captures all segments: owner/repo/branch/content/_media/filename
