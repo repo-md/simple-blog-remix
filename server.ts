@@ -12,10 +12,9 @@ export default {
   async fetch(request, env, ctx) {
     try {
       // Use the repo client to handle media requests
-      const mediaResponse = await repo.handleCloudflareRequest(request);
-      if (mediaResponse) {
-        return mediaResponse;
-      }
+      const repoResponse = await repo.handleCloudflareRequest(request);
+      if (repoResponse) return repoResponse; // If the request was handled by the repo client, return the response
+       
       
       const loadContext = getLoadContext({
         request,
