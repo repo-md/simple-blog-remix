@@ -2,15 +2,19 @@
 
 // Enable debug mode (set to true to see detailed logs)
 const DEBUG = true;
+//  "https://r2.repo.md/iplanwebsites/680e97604a0559a192640d2c/68129c0ae236a2b8ef65b52e/content/_media/0063e8bdfdd379a2fa762b160639ea600c6420dcce7aa7943ae3073a135e7dec-md.jpeg"
+
+const R2_BASE_URL =
+  "https://r2.repo.md/iplanwebsites/680e97604a0559a192640d2c/68129c0ae236a2b8ef65b52e/content/_media/"; // + // 0063e8bdfdd379a2fa762b160639ea600c6420dcce7aa7943ae3073a135e7dec-md.jpeg
 
 // Determines if a request is for a media asset
 export function isMediaRequest(request) {
   console.log("PROXY DEBUG - isMediaRequest was called", request.url);
   const url = new URL(request.url);
   console.log("PROXY DEBUG - URL parsed:", url.pathname);
-  
-  // Check if the URL starts with /_medias/
-  const isMedia = url.pathname.startsWith("/_medias/");
+
+  // Check if the URL starts with /_medias/ or /_media/
+  const isMedia = url.pathname.startsWith("/_medias/") || url.pathname.startsWith("/_media/");
   console.log("PROXY DEBUG - Is media request:", isMedia);
 
   // Always log this regardless of DEBUG flag
@@ -24,18 +28,22 @@ export function isMediaRequest(request) {
 // Builds the R2 resource URL from the request path
 function reconstructR2Url(request) {
   const url = new URL(request.url);
-  
-  // Format: /_medias/[owner]/[repo]/[branch]/content/_media/[filename]
-  const pathParts = url.pathname.replace(/^\/_medias\//, "").split('/');
-  
-  // Example URL structure:
+
+  // The URL structure has this format:
   // https://r2.repo.md/iplanwebsites/680e97604a0559a192640d2c/68129c0ae236a2b8ef65b52e/content/_media/0063e8bdfdd379a2fa762b160639ea600c6420dcce7aa7943ae3073a135e7dec-md.jpeg
-  
-  const r2Url = `https://r2.repo.md/${pathParts.join('/')}`;
+  //
+  // Our request will look like:
+  // /_medias/[media-id] or /_media/[media-id]
+
+  // Extract the media ID from the pathname (remove the leading /_medias/ or /_media/)
+  const mediaPath = url.pathname.replace(/^\/_media(s)?\//, "");
+
+  // Create the full R2 URL using the R2_BASE_URL constant
+  const r2Url = `${R2_BASE_URL}${mediaPath}`;
 
   if (DEBUG) {
     console.log(`[PROXY] Original path: ${url.pathname}`);
-    console.log(`[PROXY] Path parts:`, pathParts);
+    console.log(`[PROXY] Media path: ${mediaPath}`);
     console.log(`[PROXY] R2 URL: ${r2Url}`);
   }
 
