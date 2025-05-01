@@ -1,66 +1,88 @@
-/**
- * Proxy service for media assets
- */
+// Proxy service for media assets
 
-/**
- * Checks if the request is for a media asset
- * @param {Request} request - The incoming request
- * @returns {boolean} - Whether the request is for a media asset
- */
-function isMediaRequest(request) {
+// Enable debug mode (set to true to see detailed logs)
+const DEBUG = false;
+
+// Determines if a request is for a media asset
+export function isMediaRequest(request) {
   const url = new URL(request.url);
-  return url.pathname.startsWith('/_media/');
+  const isMedia = url.pathname.startsWith("/_medias/");
+
+  if (DEBUG) {
+    console.log(
+      `[PROXY] Checking media request: ${url.pathname}, result: ${isMedia}`
+    );
+  }
+
+  return isMedia;
 }
 
-/**
- * Reconstructs the R2 resource URL for the media asset
- * @param {Request} request - The incoming request
- * @returns {string} - The R2 resource URL
- */
+// Builds the R2 resource URL from the request path
 function reconstructR2Url(request) {
   const url = new URL(request.url);
-  // Remove the _media/ prefix from the path
-  const assetPath = url.pathname.replace(/^\/_media\//, '');
-  
-  // Construct the R2 URL - this will need to be configured based on your actual R2 setup
-  // This is a placeholder that you should replace with your actual R2 URL structure
-  return `https://your-r2-bucket.your-region.r2.cloudflarestorage.com/${assetPath}`;
+  const assetPath = url.pathname.replace(/^\/_medias\//, "");
+  const r2Url = `https://your-r2-bucket.your-region.r2.cloudflarestorage.com/${assetPath}`;
+
+  if (DEBUG) {
+    console.log(`[PROXY] Original path: ${url.pathname}`);
+    console.log(`[PROXY] Asset path: ${assetPath}`);
+    console.log(`[PROXY] R2 URL: ${r2Url}`);
+  }
+
+  return r2Url;
 }
 
-/**
- * Proxies the request to the R2 resource
- * @param {Request} request - The incoming request
- * @returns {Promise<Response>} - The response from the R2 resource
- */
-async function proxyToAssetServer(request) {
+// Proxies the request to the R2 asset server
+export async function proxyToAssetServer(request) {
+  if (DEBUG) console.log(`[PROXY] Proxying request: ${request.url}`);
+
   const r2Url = reconstructR2Url(request);
-  
-  // Create a new request to the R2 resource
-  // Copy the original request but with the new URL
+
   const assetRequest = new Request(r2Url, {
     method: request.method,
     headers: request.headers,
     body: request.body,
     redirect: request.redirect,
   });
-  
+
+  if (DEBUG) console.log(`[PROXY] Created asset request to: ${r2Url}`);
+
   try {
-    // Fetch the asset from R2
+    if (DEBUG) console.log(`[PROXY] Fetching from asset server...`);
+
     const response = await fetch(assetRequest);
-    
-    // Create a new response with appropriate caching headers
-    return new Response(response.body, {
+
+    if (DEBUG) {
+      console.log(`[PROXY] Asset server response status: ${response.status}`);
+      console.log(
+        `[PROXY] Asset server response headers:`,
+        Object.fromEntries(response.headers)
+      );
+    }
+
+    const newResponse = new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: {
         ...Object.fromEntries(response.headers),
-        'Cache-Control': 'public, max-age=31536000', // Cache for 1 year
+        "Cache-Control": "public, max-age=31536000", // Cache for 1 year
       },
     });
+
+    if (DEBUG)
+      console.log(
+        `[PROXY] Returning proxied response with status: ${newResponse.status}`
+      );
+
+    return newResponse;
   } catch (error) {
-    console.error('Error proxying to asset server:', error);
-    return new Response('Asset not found', { status: 404 });
+    console.error(`[PROXY] Error proxying to asset server:`, error);
+
+    if (DEBUG) {
+      console.log(`[PROXY] Error details:`);
+      console.log(error.stack || error.message || error);
+    }
+
+    return new Response("Asset not found", { status: 404 });
   }
 }
-
-export { isMediaRequest, proxyToAssetServer };
