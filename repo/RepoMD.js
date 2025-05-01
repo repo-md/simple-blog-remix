@@ -1,10 +1,17 @@
 /**
- * RepoMD - A client for interacting with the repo.md API
+ * RepoMD - A client for interacting with the repo.md API with quick-lru cache
  */
 
 import { handleCloudflareRequest as handleMediaRequest } from "./mediaProxy";
+import QuickLRU from "quick-lru";
 
 const DEBUG = true;
+
+// Global cache instance that persists across requests
+const lru = new QuickLRU({
+  maxSize: 1000, ///tweak depending on worker
+  maxAge: 60000 * 60, // 1h
+});
 
 export class RepoMD {
   constructor({
@@ -12,17 +19,25 @@ export class RepoMD {
     project = "680e97604a0559a192640d2c",
     ref = "68135ef83eb888fca85d2645",
     debug = false,
+    //maxCacheSize = 50,
+    //cacheTTL = 300000, // 5 minutes
   } = {}) {
     this.org = org;
     this.project = project;
     this.ref = ref;
     this.debug = debug;
 
+    // Resize cache if different settings are provided
+    //if (maxCacheSize !== lru.maxSize) {
+    //    lru.resize(maxCacheSize);
+    //  }
+
     if (this.debug) {
       console.log(`[RepoMD] Initialized with:
         - org: ${org}
         - project: ${project}
-        - ref: ${ref}`);
+        - ref: ${ref} 
+        `);
     }
   }
 
@@ -36,15 +51,25 @@ export class RepoMD {
     return url;
   }
 
-  // Helper function to fetch JSON with error handling
+  // Helper function to fetch JSON with error handling and caching
   async fetchJson(
     url,
     errorMessage = "Error fetching data",
-    defaultValue = null
+    defaultValue = null,
+    useCache = true
   ) {
     try {
       if (this.debug) {
         console.log(`[RepoMD] Fetching JSON from: ${url}`);
+      }
+
+      // Check cache first
+      if (useCache && lru.has(url)) {
+        const cachedData = lru.get(url);
+        if (this.debug) {
+          console.log(`[RepoMD] Cache hit for: ${url}`);
+        }
+        return cachedData;
       }
 
       const response = await fetch(url);
@@ -52,7 +77,19 @@ export class RepoMD {
         throw new Error(`${errorMessage}: ${response.statusText}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+
+      // Store in cache with custom TTL if needed
+      if (useCache) {
+        lru.set(url, data);
+        if (this.debug) {
+          console.log(
+            `[RepoMD] Cached data for: ${url} (cache size: ${lru.size})`
+          );
+        }
+      }
+
+      return data;
     } catch (error) {
       if (this.debug) {
         console.error(`[RepoMD] ${errorMessage}:`, error);
@@ -72,14 +109,19 @@ export class RepoMD {
   }
 
   // Fetch a JSON file from R2 storage
-  async fetchR2Json(path, defaultValue = null) {
+  async fetchR2Json(path, defaultValue = null, useCache = true) {
     const url = this.getR2Url(path);
-    return await this.fetchJson(url, `Error fetching ${path}`, defaultValue);
+    return await this.fetchJson(
+      url,
+      `Error fetching ${path}`,
+      defaultValue,
+      useCache
+    );
   }
 
   // Fetch all blog posts
-  async getAllPosts() {
-    return await this.fetchR2Json("/posts.json", []);
+  async getAllPosts(useCache = true) {
+    return await this.fetchR2Json("/posts.json", [], useCache);
   }
 
   // Get a single blog post by ID
@@ -111,6 +153,44 @@ export class RepoMD {
   async getRecentPosts(count = 3) {
     const posts = await this.getAllPosts();
     return this.sortPostsByDate(posts).slice(0, count);
+  }
+
+  // Cache management methods
+  clearCache() {
+    lru.clear();
+    if (this.debug) {
+      console.log(`[RepoMD] Cache cleared`);
+    }
+  }
+
+  getCacheStats() {
+    return {
+      size: lru.size,
+      maxSize: lru.maxSize,
+      // quick-lru doesn't expose maxAge after creation
+      maxAge: this.cacheTTL,
+      entries: Array.from(lru.keys()),
+    };
+  }
+
+  // Get cache entries for debugging
+  getCacheEntries() {
+    return {
+      ascending: Array.from(lru.entriesAscending()),
+      descending: Array.from(lru.entriesDescending()),
+    };
+  }
+
+  // Check if a specific URL is cached
+  isCached(path) {
+    const url = this.getR2Url(path);
+    return lru.has(url);
+  }
+
+  // Peek at cache value without updating recency
+  peekCache(path) {
+    const url = this.getR2Url(path);
+    return lru.peek(url);
   }
 
   // Handle Cloudflare requests
