@@ -7,6 +7,15 @@ const DEBUG = true;
 const R2_BASE_URL =
   "https://r2.repo.md/iplanwebsites/680e97604a0559a192640d2c/68129c0ae236a2b8ef65b52e/content/_media/"; // + // 0063e8bdfdd379a2fa762b160639ea600c6420dcce7aa7943ae3073a135e7dec-md.jpeg
 
+function getR2Url(
+  path,
+  org = "iplanwebsites",
+  project = "680e97604a0559a192640d2c",
+  rev = "6812c8cae236a2b8ef65b533"
+) {
+  return `https://r2.repo.md/${org}/${project}/${rev}/_media/${path}`;
+}
+
 // Determines if a request is for a media asset
 export function isMediaRequest(request) {
   console.log("PROXY DEBUG - isMediaRequest was called", request.url);
@@ -14,7 +23,8 @@ export function isMediaRequest(request) {
   console.log("PROXY DEBUG - URL parsed:", url.pathname);
 
   // Check if the URL starts with /_medias/ or /_media/
-  const isMedia = url.pathname.startsWith("/_medias/") || url.pathname.startsWith("/_media/");
+  const isMedia =
+    url.pathname.startsWith("/_medias/") || url.pathname.startsWith("/_media/");
   console.log("PROXY DEBUG - Is media request:", isMedia);
 
   // Always log this regardless of DEBUG flag
@@ -39,7 +49,7 @@ function reconstructR2Url(request) {
   const mediaPath = url.pathname.replace(/^\/_media(s)?\//, "");
 
   // Create the full R2 URL using the R2_BASE_URL constant
-  const r2Url = `${R2_BASE_URL}${mediaPath}`;
+  const r2Url = getR2Url(mediaPath); //`${R2_BASE_URL}${mediaPath}`;
 
   if (DEBUG) {
     console.log(`[PROXY] Original path: ${url.pathname}`);
