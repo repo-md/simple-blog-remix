@@ -144,23 +144,75 @@ export class RepoMD {
     const mediaData = await this.getAllMedia(useCache);
     const items = [];
 
+    if (this.debug) {
+      console.log('[RepoMD] Raw media data structure:', JSON.stringify(mediaData, null, 2));
+    }
+
     // Process media data into a usable format
-    if (mediaData && mediaData.mediaData) {
+    if (mediaData && mediaData.items) {
+      // First structure: mediaData.items (expected from API)
+      for (const item of mediaData.items) {
+        if (item && item.path) {
+          try {
+            items.push({
+              ...item,
+              // Generate thumbnail URL
+              thumbnailUrl: await this.getR2MediaUrl(
+                `${item.path}?w=300&h=300&fit=cover`
+              ),
+              // Generate full image URL
+              imageUrl: await this.getR2MediaUrl(item.path),
+            });
+          } catch (error) {
+            console.error(`[RepoMD] Error processing media item:`, error);
+          }
+        }
+      }
+    } else if (mediaData && mediaData.mediaData && Array.isArray(mediaData.mediaData)) {
+      // Alternative structure: mediaData.mediaData
       for (const item of mediaData.mediaData) {
-        items.push({
-          ...item,
-          // Generate thumbnail URL
-          thumbnailUrl: await this.getR2MediaUrl(
-            `${item.path}?w=300&h=300&fit=cover`
-          ),
-          // Generate full image URL
-          imageUrl: await this.getR2MediaUrl(item.path),
-        });
+        if (item && item.path) {
+          try {
+            items.push({
+              ...item,
+              // Generate thumbnail URL
+              thumbnailUrl: await this.getR2MediaUrl(
+                `${item.path}?w=300&h=300&fit=cover`
+              ),
+              // Generate full image URL
+              imageUrl: await this.getR2MediaUrl(item.path),
+            });
+          } catch (error) {
+            console.error(`[RepoMD] Error processing media item:`, error);
+          }
+        }
+      }
+    } else if (Array.isArray(mediaData)) {
+      // Third possibility: mediaData is directly an array
+      for (const item of mediaData) {
+        if (item && item.path) {
+          try {
+            items.push({
+              ...item,
+              // Generate thumbnail URL
+              thumbnailUrl: await this.getR2MediaUrl(
+                `${item.path}?w=300&h=300&fit=cover`
+              ),
+              // Generate full image URL
+              imageUrl: await this.getR2MediaUrl(item.path),
+            });
+          } catch (error) {
+            console.error(`[RepoMD] Error processing media item:`, error);
+          }
+        }
       }
     }
 
     if (this.debug) {
       console.log(`[RepoMD] Processed ${items.length} media items`);
+      if (items.length > 0) {
+        console.log(`[RepoMD] Sample processed item:`, items[0]);
+      }
     }
 
     return items;
