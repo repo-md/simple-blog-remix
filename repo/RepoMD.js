@@ -54,12 +54,14 @@ export class RepoMD {
   }
 
   // Helper function to fetch JSON with error handling and caching
-  async fetchJson(
-    url,
-    errorMessage = "Error fetching data",
-    defaultValue = null,
-    useCache = true
-  ) {
+  async fetchJson(url, opts = {}) {
+    // Deconstruct options with sensible defaults
+    const {
+      errorMessage = "Error fetching data",
+      defaultValue = null,
+      useCache = true,
+    } = opts;
+
     try {
       if (this.debug) {
         console.log(`[RepoMD] Fetching JSON from: ${url}`);
@@ -111,19 +113,17 @@ export class RepoMD {
   }
 
   // Fetch a JSON file from R2 storage
-  async fetchR2Json(path, defaultValue = null, useCache = true) {
+  async fetchR2Json(path, opts = {}) {
     const url = this.getR2Url(path);
-    return await this.fetchJson(
-      url,
-      `Error fetching ${path}`,
-      defaultValue,
-      useCache
-    );
+    return await this.fetchJson(url, opts);
   }
 
   // Fetch all blog posts
   async getAllPosts(useCache = true) {
-    return await this.fetchR2Json("/posts.json", [], useCache);
+    return await this.fetchR2Json("/posts.json", {
+      defaultValue: [],
+      useCache,
+    });
   }
 
   // Get a single blog post by ID
