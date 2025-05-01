@@ -131,12 +131,39 @@ export class RepoMD {
       defaultValue: {},
       useCache,
     });
-    
+
     if (this.debug) {
       console.log(`[RepoMD] Fetched media data:`, mediaData);
     }
-    
+
     return mediaData;
+  }
+
+  // Get all media items with formatted URLs
+  async getMediaItems(useCache = true) {
+    const mediaData = await this.getAllMedia(useCache);
+    const items = [];
+
+    // Process media data into a usable format
+    if (mediaData && mediaData.mediaData) {
+      for (const item of mediaData.mediaData) {
+        items.push({
+          ...item,
+          // Generate thumbnail URL
+          thumbnailUrl: await this.getR2MediaUrl(
+            `${item.path}?w=300&h=300&fit=cover`
+          ),
+          // Generate full image URL
+          imageUrl: await this.getR2MediaUrl(item.path),
+        });
+      }
+    }
+
+    if (this.debug) {
+      console.log(`[RepoMD] Processed ${items.length} media items`);
+    }
+
+    return items;
   }
 
   // Get a single blog post by ID
