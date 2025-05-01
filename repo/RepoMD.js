@@ -1,5 +1,5 @@
 /**
- * RepoClient - A client for interacting with the repo.md API
+ * RepoMD - A client for interacting with the repo.md API
  * Handles blog posts and media assets
  */
 
@@ -9,9 +9,9 @@ const MEDIA_URL_PREFIX = "/_repo/medias/";
 // Debug flag for detailed logging
 const DEBUG = true;
 
-export class RepoClient {
+export class RepoMD {
   /**
-   * Create a new RepoClient instance
+   * Create a new RepoMD instance
    * @param {Object} options - Configuration options
    * @param {string} options.org - Organization name (e.g., 'iplanwebsites')
    * @param {string} options.project - Project ID
@@ -33,7 +33,7 @@ export class RepoClient {
     this.postsApiUrl = `https://r2.repo.md/${org}/${project}/${ref}/posts.json`;
     
     if (this.debug) {
-      console.log(`[RepoClient] Initialized with:
+      console.log(`[RepoMD] Initialized with:
         - org: ${org}
         - project: ${project}
         - ref: ${ref}
@@ -50,7 +50,7 @@ export class RepoClient {
     const url = `https://r2.repo.md/${this.org}/${this.project}/${this.ref}/_media/${path}`;
     
     if (this.debug) {
-      console.log(`[RepoClient] Generated R2 URL: ${url}`);
+      console.log(`[RepoMD] Generated R2 URL: ${url}`);
     }
     
     return url;
@@ -63,7 +63,7 @@ export class RepoClient {
   async getAllPosts() {
     try {
       if (this.debug) {
-        console.log(`[RepoClient] Fetching posts from: ${this.postsApiUrl}`);
+        console.log(`[RepoMD] Fetching posts from: ${this.postsApiUrl}`);
       }
       
       const response = await fetch(this.postsApiUrl);
@@ -74,7 +74,7 @@ export class RepoClient {
       const posts = await response.json();
       return posts;
     } catch (error) {
-      console.error("[RepoClient] Error fetching blog posts:", error);
+      console.error("[RepoMD] Error fetching blog posts:", error);
       return [];
     }
   }
@@ -87,13 +87,13 @@ export class RepoClient {
   async getPostById(id) {
     try {
       if (this.debug) {
-        console.log(`[RepoClient] Fetching post with ID: ${id}`);
+        console.log(`[RepoMD] Fetching post with ID: ${id}`);
       }
       
       const posts = await this.getAllPosts();
       return posts.find((post) => post.id === id) || null;
     } catch (error) {
-      console.error(`[RepoClient] Error fetching post with ID ${id}:`, error);
+      console.error(`[RepoMD] Error fetching post with ID ${id}:`, error);
       return null;
     }
   }
@@ -106,13 +106,13 @@ export class RepoClient {
   async getPostBySlug(slug) {
     try {
       if (this.debug) {
-        console.log(`[RepoClient] Fetching post with slug: ${slug}`);
+        console.log(`[RepoMD] Fetching post with slug: ${slug}`);
       }
       
       const posts = await this.getAllPosts();
       return posts.find((post) => post.slug === slug) || null;
     } catch (error) {
-      console.error(`[RepoClient] Error fetching post with slug ${slug}:`, error);
+      console.error(`[RepoMD] Error fetching post with slug ${slug}:`, error);
       return null;
     }
   }
@@ -143,14 +143,14 @@ export class RepoClient {
    */
   isMediaRequest(request) {
     if (this.debug) {
-      console.log("[RepoClient] Checking if media request:", request.url);
+      console.log("[RepoMD] Checking if media request:", request.url);
     }
     
     const url = new URL(request.url);
     const isMedia = url.pathname.startsWith(MEDIA_URL_PREFIX);
     
     if (this.debug) {
-      console.log(`[RepoClient] URL path: ${url.pathname}, isMedia: ${isMedia}`);
+      console.log(`[RepoMD] URL path: ${url.pathname}, isMedia: ${isMedia}`);
     }
     
     return isMedia;
@@ -166,7 +166,7 @@ export class RepoClient {
     const mediaPath = url.pathname.replace(MEDIA_URL_PREFIX, "");
     
     if (this.debug) {
-      console.log(`[RepoClient] Extracted media path: ${mediaPath} from ${url.pathname}`);
+      console.log(`[RepoMD] Extracted media path: ${mediaPath} from ${url.pathname}`);
     }
     
     return mediaPath;
@@ -179,7 +179,7 @@ export class RepoClient {
    */
   async proxyToAssetServer(request) {
     if (this.debug) {
-      console.log(`[RepoClient] Proxying media request: ${request.url}`);
+      console.log(`[RepoMD] Proxying media request: ${request.url}`);
     }
     
     // Get the media path from the request URL
@@ -189,7 +189,7 @@ export class RepoClient {
     const r2Url = this.getR2Url(mediaPath);
     
     if (this.debug) {
-      console.log(`[RepoClient] Proxying to R2 URL: ${r2Url}`);
+      console.log(`[RepoMD] Proxying to R2 URL: ${r2Url}`);
     }
     
     // Create a new request for the R2 asset
@@ -205,7 +205,7 @@ export class RepoClient {
       const response = await fetch(assetRequest);
       
       if (this.debug) {
-        console.log(`[RepoClient] R2 response status: ${response.status}`);
+        console.log(`[RepoMD] R2 response status: ${response.status}`);
       }
       
       // Create a new response with caching headers
@@ -220,7 +220,7 @@ export class RepoClient {
       
       return newResponse;
     } catch (error) {
-      console.error(`[RepoClient] Error proxying to asset server:`, error);
+      console.error(`[RepoMD] Error proxying to asset server:`, error);
       return new Response("Asset not found", { status: 404 });
     }
   }
@@ -233,13 +233,13 @@ export class RepoClient {
    */
   async handleCloudflareRequest(request) {
     if (this.debug) {
-      console.log(`[RepoClient] Handling request: ${request.url}`);
+      console.log(`[RepoMD] Handling request: ${request.url}`);
     }
     
     // Check if the request is for a media asset
     if (this.isMediaRequest(request)) {
       if (this.debug) {
-        console.log(`[RepoClient] Detected media request, proxying to asset server`);
+        console.log(`[RepoMD] Detected media request, proxying to asset server`);
       }
       return await this.proxyToAssetServer(request);
     }
@@ -250,4 +250,4 @@ export class RepoClient {
 }
 
 // Create a default export for easier imports
-export default RepoClient;
+export default RepoMD;

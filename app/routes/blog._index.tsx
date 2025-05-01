@@ -1,7 +1,7 @@
 import { json } from "@remix-run/cloudflare";
 import { Link, useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
-import repoClient from "../../repo/client";
+import repo from "../../repo/client";
 import type { Post } from "~/types/blog";
 import ErrorBoundaryComponent from "~/components/ErrorBoundary";
 
@@ -14,8 +14,8 @@ export const meta: MetaFunction = () => {
 
 export const loader: LoaderFunction = async () => {
   try {
-    const posts = await repoClient.getAllPosts();
-    const sortedPosts = repoClient.sortPostsByDate(posts);
+    const posts = await repo.getAllPosts();
+    const sortedPosts = repo.sortPostsByDate(posts);
     return json({ posts: sortedPosts });
   } catch (error) {
     console.error("Error loading posts:", error);

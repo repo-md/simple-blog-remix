@@ -3,7 +3,7 @@ import { createRequestHandler, type ServerBuild } from "@remix-run/cloudflare";
 // @ts-ignore This file won't exist if it hasn't yet been built
 import * as build from "./build/server"; // eslint-disable-line import/no-unresolved
 import { getLoadContext } from "./load-context";
-import repoClient from "./repo/client";
+import repo from "./repo/client";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleRemixRequest = createRequestHandler(build as any as ServerBuild);
@@ -12,7 +12,7 @@ export default {
   async fetch(request, env, ctx) {
     try {
       // Use the repo client to handle media requests
-      const mediaResponse = await repoClient.handleCloudflareRequest(request);
+      const mediaResponse = await repo.handleCloudflareRequest(request);
       if (mediaResponse) {
         return mediaResponse;
       }

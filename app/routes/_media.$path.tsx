@@ -1,6 +1,6 @@
 // Route for media asset proxy
 import { LoaderFunction } from "@remix-run/cloudflare";
-import repoClient from "../../repo/client";
+import repo from "../../repo/client";
 
 // This route handles media asset requests and proxies them to R2
 // The $path parameter captures the media ID to be fetched from R2
@@ -17,7 +17,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   const modifiedRequest = new Request(url.toString(), request);
   
   // Use the repo client to proxy the request to the asset server
-  return await repoClient.proxyToAssetServer(modifiedRequest);
+  return await repo.proxyToAssetServer(modifiedRequest);
 };
 
 // No component needed for API endpoint
