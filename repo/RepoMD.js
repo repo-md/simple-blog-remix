@@ -17,7 +17,7 @@ export class RepoMD {
   constructor({
     org = "iplanwebsites",
     project = "680e97604a0559a192640d2c",
-    ref = "68135ef83eb888fca85d2645",
+    rev = "latest", // Default to "latest"
     secret = null,
     debug = false,
     //maxCacheSize = 50,
@@ -25,9 +25,10 @@ export class RepoMD {
   } = {}) {
     this.org = org;
     this.project = project;
-    this.ref = ref;
+    this.rev = rev;
     this.debug = debug;
     this.secret = secret;
+    this.latestRevId = null; // Store resolved latest revision ID
 
     // Resize cache if different settings are provided
     //if (maxCacheSize !== lru.maxSize) {
@@ -38,19 +39,62 @@ export class RepoMD {
       console.log(`[RepoMD] Initialized with:
         - org: ${org}
         - project: ${project}
-        - ref: ${ref} 
+        - rev: ${rev} 
         `);
     }
+  }
+
+  // Get base API URL for backend calls
+  getApiUrl(path = "") {
+    const domain = "api.repo.md";
+    const url = `https://${domain}/v1/${this.org}/${this.project}${path}`;
+    if (this.debug) {
+      console.log(`[RepoMD] Generated API URL: ${url}`);
+    }
+    return url;
   }
 
   // Get basic URL with given domain and path
   getR2Url(path = "") {
     const domain = "r2.repo.md";
-    const url = `https://${domain}/${this.org}/${this.project}/${this.ref}${path}`;
+    const resolvedRev = this.rev === "latest" ? this.latestRevId : this.rev;
+    const url = `https://${domain}/${this.org}/${this.project}/${resolvedRev}${path}`;
     if (this.debug) {
       console.log(`[RepoMD] Generated URL: ${url}`);
     }
     return url;
+  }
+
+  // Fetch project configuration including latest release information
+  async fetchProjectConfig() {
+    const url = this.getApiUrl("/config");
+
+    return await this.fetchJson(url, {
+      errorMessage: "Error fetching project configuration",
+      useCache: true, // fetchJson already handles caching
+    });
+  }
+
+  // Get the latest revision ID
+  async getLatestRevisionId() {
+    const config = await this.fetchProjectConfig();
+    return config.latest_release?.rev_id || config.latest_release?.id;
+  }
+
+  // Ensure latest revision is resolved before making R2 calls
+  async ensureLatestRev() {
+    if (this.rev === "latest" && !this.latestRevId) {
+      const latestId = await this.getLatestRevisionId();
+      if (!latestId) {
+        throw new Error("Could not determine latest revision ID");
+      }
+      this.latestRevId = latestId;
+      if (this.debug) {
+        console.log(
+          `[RepoMD] Resolved 'latest' to revision: ${this.latestRevId}`
+        );
+      }
+    }
   }
 
   // Helper function to fetch JSON with error handling and caching
@@ -103,17 +147,20 @@ export class RepoMD {
   }
 
   // Get URL for the SQLite database
-  getSqliteURL() {
+  async getSqliteURL() {
+    await this.ensureLatestRev();
     return this.getR2Url("/content.sqlite");
   }
 
   // Legacy support for older code
-  getR2MediaUrl(path) {
+  async getR2MediaUrl(path) {
+    await this.ensureLatestRev();
     return this.getR2Url(`/_media/${path}`);
   }
 
   // Fetch a JSON file from R2 storage
   async fetchR2Json(path, opts = {}) {
+    await this.ensureLatestRev();
     const url = this.getR2Url(path);
     return await this.fetchJson(url, opts);
   }
@@ -157,9 +204,19 @@ export class RepoMD {
     return this.sortPostsByDate(posts).slice(0, count);
   }
 
+  // Get release information
+  async getReleaseInfo() {
+    const config = await this.fetchProjectConfig();
+    return {
+      current: config.latest_release,
+      all: config.releases || [],
+    };
+  }
+
   // Cache management methods
   clearCache() {
     lru.clear();
+    //this.latestRevId = null; // Clear resolved latest revision
     if (this.debug) {
       console.log(`[RepoMD] Cache cleared`);
     }
