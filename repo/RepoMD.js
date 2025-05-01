@@ -2,9 +2,9 @@
  * RepoMD - A client for interacting with the repo.md API
  */
 
-import { 
+import {
   handleCloudflareRequest as handleMediaRequest,
-  proxyToAssetServer
+  proxyToAssetServer,
 } from "./mediaProxy";
 
 const DEBUG = true;
@@ -31,13 +31,29 @@ export class RepoMD {
     }
   }
 
-  // Get R2 URL for a media asset
-  getR2Url(path) {
-    const url = `https://r2.repo.md/${this.org}/${this.project}/${this.ref}/_media/${path}`;
+  // Get basic URL with given domain and path
+  getUrl(path = "") {
+    const domain = "r2.repo.md";
+    const url = `https://${domain}/${this.org}/${this.project}/${this.ref}${path}`;
     if (this.debug) {
-      console.log(`[RepoMD] Generated R2 URL: ${url}`);
+      console.log(`[RepoMD] Generated URL: ${url}`);
     }
     return url;
+  }
+
+  // Get R2 URL for a media asset
+  getR2Url(path) {
+    return this.getUrl(`/_media/${path}`);
+  }
+
+  // Get URL for the SQLite database
+  getSqliteURL() {
+    return this.getUrl("/content.sqlite");
+  }
+
+  // Legacy support for older code
+  getR2MediaUrl(path) {
+    return this.getR2Url(path);
   }
 
   // Fetch all blog posts
