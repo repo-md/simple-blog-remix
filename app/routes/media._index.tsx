@@ -30,6 +30,15 @@ interface MediaItem {
   type?: string;
   thumbnailUrl?: string;
   imageUrl?: string;
+  fileName?: string;
+  originalPath?: string;
+  sizes?: {
+    [key: string]: Array<{
+      publicPath: string;
+      width?: number;
+      height?: number;
+    }>;
+  };
 }
 
 export default function MediaPage() {
@@ -70,11 +79,35 @@ export default function MediaPage() {
                 <h3 className="font-medium text-gray-900 dark:text-white truncate" title={item.fileName || 'Unnamed file'}>
                   {item.fileName || 'Unnamed file'}
                 </h3>
-                hashPath
+                
                 <div className="mt-1 text-sm text-gray-600 dark:text-gray-400 flex justify-between">
                   <span>{item.type ? item.type.split('/')[1]?.toUpperCase() : 'FILE'}</span>
                   <span>{formatFileSize(item.size || 0)}</span>
                 </div>
+                
+                {/* Available Sizes */}
+                {item.sizes && Object.keys(item.sizes).length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs text-gray-500 mb-1">Available sizes:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {Object.keys(item.sizes).map((sizeKey) => (
+                        item.sizes?.[sizeKey]?.[0] && (
+                          <a
+                            key={sizeKey}
+                            href={item.sizes[sizeKey][0].publicPath}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2 py-1 text-xs rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+                            title={`Size: ${sizeKey} (${item.sizes[sizeKey][0].width || '?'}x${item.sizes[sizeKey][0].height || '?'})`}
+                          >
+                            {sizeKey}
+                          </a>
+                        )
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 {item.imageUrl && (
                   <a 
                     href={item.imageUrl} 
