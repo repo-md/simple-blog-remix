@@ -1,7 +1,7 @@
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
-import { getRecentPosts } from "../../repo/api";
+import repoClient from "../../repo/client";
 import RecentPosts from "~/components/RecentPosts";
 import type { Post } from "~/types/blog";
 
@@ -14,7 +14,7 @@ export const meta: MetaFunction = () => {
 
 export const loader: LoaderFunction = async () => {
   try {
-    const recentPosts = await getRecentPosts(3);
+    const recentPosts = await repoClient.getRecentPosts(3);
     return json({ posts: recentPosts });
   } catch (error) {
     console.error("Error loading recent posts:", error);

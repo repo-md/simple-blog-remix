@@ -1,7 +1,7 @@
 import { json } from "@remix-run/cloudflare";
 import { Link, useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
-import { getPostBySlug } from "../../repo/api";
+import repoClient from "../../repo/client";
 import type { Post } from "~/types/blog";
 import ErrorBoundaryComponent from "~/components/ErrorBoundary";
 
@@ -9,7 +9,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   const { postId } = params;
   
   try {
-    const post = await getPostBySlug(postId);
+    const post = await repoClient.getPostBySlug(postId);
     console.log("Post loaded:", post);
     
     if (!post) {

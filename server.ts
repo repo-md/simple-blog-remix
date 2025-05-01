@@ -3,7 +3,7 @@ import { createRequestHandler, type ServerBuild } from "@remix-run/cloudflare";
 // @ts-ignore This file won't exist if it hasn't yet been built
 import * as build from "./build/server"; // eslint-disable-line import/no-unresolved
 import { getLoadContext } from "./load-context";
-import { isMediaRequest, proxyToAssetServer } from "./repo/proxyService";
+import repoClient from "./repo/client";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const handleRemixRequest = createRequestHandler(build as any as ServerBuild);
@@ -11,13 +11,10 @@ const handleRemixRequest = createRequestHandler(build as any as ServerBuild);
 export default {
   async fetch(request, env, ctx) {
     try {
-      // Check if the request is for a media asset
-      console.log("+-+-+-+-+-+-+Request URL:", request.url, 464848484);
-      console.log("+-+-+-+-+-+-+isMediaRequest was called!", JSON.stringify(request.headers, null, 2));
-      const isMedia = isMediaRequest(request);
-      console.log("+-+-+-+-+-+-+isMediaRequest result:", isMedia);
-      if (isMedia) {
-        return await proxyToAssetServer(request);
+      // Use the repo client to handle media requests
+      const mediaResponse = await repoClient.handleCloudflareRequest(request);
+      if (mediaResponse) {
+        return mediaResponse;
       }
       
       const loadContext = getLoadContext({
