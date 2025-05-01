@@ -3,7 +3,7 @@ import { LoaderFunction } from "@remix-run/cloudflare";
 
 // This is a test route to force Remix to handle _media URLs
 export const loader: LoaderFunction = async ({ params, request }) => {
-  console.log("_media ROUTE HANDLER CALLED", params);
+  console.log("+-+---++ _media ROUTE HANDLER CALLED", params);
   const path = params.path;
   
   // Return a simple text response for now
