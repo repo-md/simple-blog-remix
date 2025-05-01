@@ -18,6 +18,7 @@ export class RepoMD {
     org = "iplanwebsites",
     project = "680e97604a0559a192640d2c",
     ref = "68135ef83eb888fca85d2645",
+    secret = null,
     debug = false,
     //maxCacheSize = 50,
     //cacheTTL = 300000, // 5 minutes
@@ -26,6 +27,7 @@ export class RepoMD {
     this.project = project;
     this.ref = ref;
     this.debug = debug;
+    this.secret = secret;
 
     // Resize cache if different settings are provided
     //if (maxCacheSize !== lru.maxSize) {
