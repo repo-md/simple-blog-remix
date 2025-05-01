@@ -54,6 +54,9 @@ export default function App() {
               <li>
                 <a href="/blog" className="text-gray-600 hover:text-blue-700 dark:text-gray-300 dark:hover:text-blue-500">Blog</a>
               </li>
+              <li>
+                <a href="/media" className="text-gray-600 hover:text-blue-700 dark:text-gray-300 dark:hover:text-blue-500">Media</a>
+              </li>
             </ul>
           </nav>
         </div>

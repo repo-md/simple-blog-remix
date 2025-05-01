@@ -125,6 +125,20 @@ export class RepoMD {
     });
   }
 
+  // Fetch media data
+  async getAllMedia(useCache = true) {
+    const mediaData = await this.fetchR2Json("/media-results.json", {
+      defaultValue: {},
+      useCache,
+    });
+    
+    if (this.debug) {
+      console.log(`[RepoMD] Fetched media data:`, mediaData);
+    }
+    
+    return mediaData;
+  }
+
   // Get a single blog post by ID
   async getPostById(id) {
     if (this.debug) {
