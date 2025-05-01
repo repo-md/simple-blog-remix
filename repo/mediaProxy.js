@@ -8,6 +8,7 @@ const DEBUG = true;
 // Helper function to find probable MIME type from file path
 function findProbableMimeType(path) {
   const ext = path.split(".").pop().toLowerCase();
+  console.log("++++++ext from path:", ext, path);
   const mimeTypes = {
     // Images
     jpg: "image/jpeg",
@@ -59,12 +60,17 @@ function createBrowserFriendlyHeaders(originalHeaders, mediaPath) {
 
   // Get content type from original headers or determine from file extension
   let contentType = originalHeaders.get("Content-Type");
-  if (!contentType) {
+  console.log("++++++Content-Type from original headers:", contentType);
+  if (!contentType || contentType === "application/octet-stream") {
     contentType = findProbableMimeType(mediaPath);
   }
 
   // Set content type
   newHeaders.set("Content-Type", contentType);
+  console.log(
+    "++++-+-+-+-+++Content-Type from findProbableMimeType",
+    contentType
+  );
 
   // Remove or set Content-Disposition to inline for browser display
   newHeaders.delete("Content-Disposition");
@@ -78,7 +84,8 @@ function createBrowserFriendlyHeaders(originalHeaders, mediaPath) {
   // }
 
   // Set cache control
-  newHeaders.set("Cache-Control", "public, max-age=31536000");
+  const cacheDuration = 333;
+  newHeaders.set("Cache-Control", "public, max-age=" + cacheDuration);
 
   return newHeaders;
 }
