@@ -11,7 +11,11 @@ const DEBUG = true;
 export class RepoMD {
   constructor({
     org = "iplanwebsites",
-    project = "680e97604a0559a192640d2c",
+    orgSlug = "iplanwebsites",
+    orgId = null,
+    project = "tbd",
+    projectId = "680e97604a0559a192640d2c",
+    projectSlug = "undefined-project-slug",
     rev = "latest", // Default to "latest"
     secret = null,
     debug = false,
@@ -20,6 +24,10 @@ export class RepoMD {
   } = {}) {
     this.org = org;
     this.project = project;
+    this.projectId = projectId;
+    this.projectSlug = projectSlug;
+    this.orgSlug = orgSlug;
+    this.orgId = orgId;
     this.rev = rev;
     this.debug = debug;
     this.secret = secret;
@@ -39,40 +47,45 @@ export class RepoMD {
     }
   }
 
-  // Get base API URL for backend calls
-  getApiUrl(path = "") {
-    const domain = "api.repo.md";
-    const url = `https://${domain}/v1/${this.org}/${this.project}${path}`;
-    if (this.debug) {
-      console.log(`[RepoMD] Generated API URL: ${url}`);
-    }
-    return url;
-  }
-
   // Get basic URL with given domain and path
   getR2Url(path = "") {
     const domain = "r2.repo.md";
     const resolvedRev = this.rev === "latest" ? this.latestRevId : this.rev;
-    const url = `https://${domain}/${this.org}/${this.project}/${resolvedRev}${path}`;
+    const url = `https://${domain}/${this.orgSlug}/${this.projectId}/${resolvedRev}${path}`;
     if (this.debug) {
       console.log(`[RepoMD] Generated URL: ${url}`);
     }
     return url;
   }
 
-  // Fetch project configuration including latest release information
-  async fetchProjectConfig() {
-    const url = this.getApiUrl("/config");
+  // Get base API URL for backend calls
+
+  async fetchPublicApi(path = "/") {
+    const domain = "api.repo.md";
+    const url = `https://${domain}/v1/${path}`;
 
     return await this.fetchJson(url, {
-      errorMessage: "Error fetching project configuration",
+      errorMessage: "Error fetching pubic API route: " + path,
       useCache: true, // fetchJson already handles caching
     });
   }
 
+  // Fetch project configuration including latest release information
+  async fetchProjectDetails() {
+    const path = `/orgs/${this.orgSlug}/projects/slug/${this.projectSlug}`;
+    // EX: http://localhost:5599/v1/orgs/iplanwebsites/projects/slug/port1g
+    const project = await this.fetchPublicApi(path);
+    return project;
+  }
+  async getActiveProjectRev() {
+    const { activeRev, id } = await this.fetchProjectDetails();
+
+    return activeRev;
+  }
+
   // Get the latest revision ID
   async getLatestRevisionId() {
-    const config = await this.fetchProjectConfig();
+    const config = await this.fetchProjectDetails();
     return config.latest_release?.rev_id || config.latest_release?.id;
   }
 
@@ -187,7 +200,7 @@ export class RepoMD {
 
   // Get release information
   async getReleaseInfo() {
-    const config = await this.fetchProjectConfig();
+    const config = await this.fetchProjectDetails();
     return {
       current: config.latest_release,
       all: config.releases || [],

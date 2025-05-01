@@ -35,7 +35,7 @@ export default function BlogIndex() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (
-            <div key={post.slug} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div key={post.slug} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <div className="p-6">
                 <h2 className="text-xl font-semibold mb-2">
                   <Link 
@@ -46,16 +46,14 @@ export default function BlogIndex() {
                     {post.frontmatter.title}
                   </Link>
                 </h2>
-                <p className="text-gray-700 dark:text-gray-300">{post.plain}</p>
-                <div className="mt-4">
-                  <Link 
-                  prefetch="viewport"  
-                    to={`/blog/${post.slug}`}
-                    className="text-blue-700 hover:underline dark:text-blue-500"
-                  >
-                    Read more →
-                  </Link>
-                </div>
+                <p className="text-gray-700 dark:text-gray-300 text-sm mb-4 line-clamp-2 overflow-hidden">{post.firstParagraphText || post.plain}</p>
+                <Link 
+                prefetch="viewport"  
+                  to={`/blog/${post.slug}`}
+                  className="text-sm text-blue-700 hover:underline dark:text-blue-500"
+                >
+                  Read more →
+                </Link>
               </div>
             </div>
           ))}
