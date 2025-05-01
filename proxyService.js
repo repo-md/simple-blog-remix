@@ -24,6 +24,7 @@ function reconstructR2Url(request) {
   const url = new URL(request.url);
   const assetPath = url.pathname.replace(/^\/_medias\//, "");
   const r2Url = `https://r2.repo.md/${assetPath}`;
+  //
 
   if (DEBUG) {
     console.log(`[PROXY] Original path: ${url.pathname}`);
@@ -67,7 +68,8 @@ export async function proxyToAssetServer(request) {
       statusText: response.statusText,
       headers: {
         ...Object.fromEntries(response.headers),
-        "Cache-Control": "public, max-age=31536000", // Cache for 1 year
+        "Cache-Control": "public, max-age=0", // Cache for 1 year
+        //  "Cache-Control": "public, max-age=31536000", // Cache for 1 year
       },
     });
 
