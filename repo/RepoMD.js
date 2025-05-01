@@ -3,21 +3,16 @@
  */
 
 import { handleCloudflareRequest as handleMediaRequest } from "./mediaProxy";
-import QuickLRU from "quick-lru";
+
+import { fetchJson } from "./utils";
 
 const DEBUG = true;
-
-// Global cache instance that persists across requests
-const lru = new QuickLRU({
-  maxSize: 1000, ///tweak depending on worker
-  maxAge: 60000 * 60, // 1h
-});
 
 export class RepoMD {
   constructor({
     org = "iplanwebsites",
     project = "680e97604a0559a192640d2c",
-    rev = "latest", // Default to "latest"
+    rev = "68135ef83eb888fca85d2645", // Default to "latest"
     secret = null,
     debug = false,
     //maxCacheSize = 50,
@@ -99,51 +94,7 @@ export class RepoMD {
 
   // Helper function to fetch JSON with error handling and caching
   async fetchJson(url, opts = {}) {
-    // Deconstruct options with sensible defaults
-    const {
-      errorMessage = "Error fetching data",
-      defaultValue = null,
-      useCache = true,
-    } = opts;
-
-    try {
-      if (this.debug) {
-        console.log(`[RepoMD] Fetching JSON from: ${url}`);
-      }
-
-      // Check cache first
-      if (useCache && lru.has(url)) {
-        const cachedData = lru.get(url);
-        if (this.debug) {
-          console.log(`[RepoMD] Cache hit for: ${url}`);
-        }
-        return cachedData;
-      }
-
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`${errorMessage}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-
-      // Store in cache with custom TTL if needed
-      if (useCache) {
-        lru.set(url, data);
-        if (this.debug) {
-          console.log(
-            `[RepoMD] Cached data for: ${url} (cache size: ${lru.size})`
-          );
-        }
-      }
-
-      return data;
-    } catch (error) {
-      if (this.debug) {
-        console.error(`[RepoMD] ${errorMessage}:`, error);
-      }
-      return defaultValue;
-    }
+    return await fetchJson(url, opts, this.debug);
   }
 
   // Get URL for the SQLite database
@@ -211,45 +162,6 @@ export class RepoMD {
       current: config.latest_release,
       all: config.releases || [],
     };
-  }
-
-  // Cache management methods
-  clearCache() {
-    lru.clear();
-    //this.latestRevId = null; // Clear resolved latest revision
-    if (this.debug) {
-      console.log(`[RepoMD] Cache cleared`);
-    }
-  }
-
-  getCacheStats() {
-    return {
-      size: lru.size,
-      maxSize: lru.maxSize,
-      // quick-lru doesn't expose maxAge after creation
-      maxAge: this.cacheTTL,
-      entries: Array.from(lru.keys()),
-    };
-  }
-
-  // Get cache entries for debugging
-  getCacheEntries() {
-    return {
-      ascending: Array.from(lru.entriesAscending()),
-      descending: Array.from(lru.entriesDescending()),
-    };
-  }
-
-  // Check if a specific URL is cached
-  isCached(path) {
-    const url = this.getR2Url(path);
-    return lru.has(url);
-  }
-
-  // Peek at cache value without updating recency
-  peekCache(path) {
-    const url = this.getR2Url(path);
-    return lru.peek(url);
   }
 
   // Handle Cloudflare requests
