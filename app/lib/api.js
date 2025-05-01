@@ -16,7 +16,7 @@ export async function getAllPosts() {
       throw new Error(`Failed to fetch posts: ${response.statusText}`);
     }
     const j = await response.json();
-    console.log(j, 432423);
+    // console.log(j, 432423);
     return j;
   } catch (error) {
     console.error("Error fetching blog posts:", error);
@@ -45,7 +45,14 @@ export async function getPostById(id) {
  * @returns {Promise<Object|null>} The post object or null if not found
  */
 export async function getPostBySlug(slug) {
-  return getPostById(slug);
+  console.log("getPostBySlug", slug);
+  try {
+    const posts = await getAllPosts();
+    return posts.find((post) => post.slug === slug) || null;
+  } catch (error) {
+    console.error(`Error fetching post with ID ${slug}:`, error);
+    return null;
+  }
 }
 
 /**

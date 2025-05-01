@@ -1,5 +1,5 @@
 import { json } from "@remix-run/cloudflare";
-import { useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
+import { Link, useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
 import { getPostBySlug } from "~/lib/api";
 import type { Post } from "~/types/blog";
@@ -10,6 +10,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   
   try {
     const post = await getPostBySlug(postId);
+    console.log("Post loaded:", post);
     
     if (!post) {
       throw new Response("Post not found", { status: 404 });

@@ -45,7 +45,13 @@ export async function getPostById(id: string): Promise<Post | null> {
  * @returns Promise<Post|null> The post object or null if not found
  */
 export async function getPostBySlug(slug: string): Promise<Post | null> {
-  return getPostById(slug);
+  try {
+    const posts = await getAllPosts();
+    return posts.find((post) => post.slug === slug) || null;
+  } catch (error) {
+    console.error(`Error fetching post with slug ${slug}:`, error);
+    return null;
+  }
 }
 
 /**
