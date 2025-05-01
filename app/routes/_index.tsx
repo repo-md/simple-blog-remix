@@ -7,7 +7,7 @@ import type { Post } from "~/types/blog";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Remix Blog - Home" },
+    { title: "Remo.md Remix Blog template- Home" },
     { name: "description", content: "Welcome to our Remix Blog!" },
   ];
 };

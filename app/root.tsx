@@ -45,7 +45,7 @@ export default function App() {
     <div className="flex flex-col min-h-screen">
       <header className="bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <a href="/" className="text-xl font-bold text-gray-800 dark:text-white">Remix Blog</a>
+          <a href="/" className="text-xl font-bold text-gray-800 dark:text-white">Repo Blog</a>
           <nav>
             <ul className="flex space-x-6">
               <li>
@@ -63,7 +63,7 @@ export default function App() {
       </main>
       <footer className="bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 py-6">
         <div className="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
-          <p>© {new Date().getFullYear()} Remix Blog. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Repo.md Blog. All rights reserved.</p>
         </div>
       </footer>
     </div>
