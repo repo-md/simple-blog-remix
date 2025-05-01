@@ -39,6 +39,7 @@ export default function BlogIndex() {
               <div className="p-6">
                 <h2 className="text-xl font-semibold mb-2">
                   <Link 
+                  prefetch="viewport" 
                     to={`/blog/${post.slug}`}
                     className="text-blue-700 hover:underline dark:text-blue-500"
                   >
@@ -48,6 +49,7 @@ export default function BlogIndex() {
                 <p className="text-gray-700 dark:text-gray-300">{post.plain}</p>
                 <div className="mt-4">
                   <Link 
+                  prefetch="viewport"  
                     to={`/blog/${post.slug}`}
                     className="text-blue-700 hover:underline dark:text-blue-500"
                   >

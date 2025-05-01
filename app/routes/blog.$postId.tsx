@@ -73,6 +73,7 @@ export default function BlogPost() {
         
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
           <Link 
+          prefetch="viewport" 
             to="/blog" 
             className="text-blue-700 hover:underline dark:text-blue-500"
           >

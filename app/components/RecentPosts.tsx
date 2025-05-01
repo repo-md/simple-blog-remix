@@ -24,6 +24,7 @@ export default function RecentPosts({ posts }: RecentPostsProps) {
               <div className="p-6">
                 <h3 className="text-lg font-semibold mb-2">
                   <Link 
+                  prefetch="viewport" 
                     to={`/blog/${post.slug}`}
                     className="text-blue-700 hover:underline dark:text-blue-500"
                   >
@@ -32,6 +33,7 @@ export default function RecentPosts({ posts }: RecentPostsProps) {
                 </h3>
                 <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">{post.plain}</p>
                 <Link 
+                prefetch="viewport" 
                   to={`/blog/${post.slug}`}
                   className="text-sm text-blue-700 hover:underline dark:text-blue-500"
                 >

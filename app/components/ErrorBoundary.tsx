@@ -18,6 +18,7 @@ export default function ErrorBoundary({
         <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">{statusText}</h2>
         <p className="mb-6 text-gray-600 dark:text-gray-400">{message}</p>
         <Link
+        prefetch="viewport" 
           to="/"
           className="inline-block px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors"
         >
