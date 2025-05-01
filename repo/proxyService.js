@@ -10,6 +10,8 @@ const R2_BASE_URL =
 // https://r2.repo.md/iplanwebsites/680e97604a0559a192640d2c/68135d183eb888fca85d2644/posts.json
 import { getR2Url } from "./api.js";
 
+const MEDIA_URL_PREFIX = "/_repo/medias/"; // Prefix for media URLs
+
 // Determines if a request is for a media asset
 export function isMediaRequest(request) {
   console.log("PROXY DEBUG - isMediaRequest was called", request.url);
@@ -17,8 +19,7 @@ export function isMediaRequest(request) {
   console.log("PROXY DEBUG - URL parsed:", url.pathname);
 
   // Check if the URL starts with /_medias/ or /_media/
-  const isMedia =
-    url.pathname.startsWith("/_medias/") || url.pathname.startsWith("/_media/");
+  const isMedia = url.pathname.startsWith(MEDIA_URL_PREFIX);
   console.log("PROXY DEBUG - Is media request:", isMedia);
 
   // Always log this regardless of DEBUG flag
@@ -40,7 +41,7 @@ function reconstructR2Url(request) {
   // /_medias/[media-id] or /_media/[media-id]
 
   // Extract the media ID from the pathname (remove the leading /_medias/ or /_media/)
-  const mediaPath = url.pathname.replace(/^\/_media(s)?\//, "");
+  const mediaPath = url.pathname.replace(MEDIA_URL_PREFIX, ""); ///^\/_media(s)?\//, "");
 
   // Create the full R2 URL using the R2_BASE_URL constant
   const r2Url = getR2Url(mediaPath); //`${R2_BASE_URL}${mediaPath}`;
