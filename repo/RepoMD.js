@@ -122,12 +122,12 @@ export class RepoMD {
     if (this.debug) {
       console.log(`[RepoMD] Handling Cloudflare request: ${request.url}`);
     }
-    return await handleMediaRequest(request, this.getR2Url.bind(this));
+    return await handleMediaRequest(request, this.getR2MediaUrl.bind(this));
   }
 
   // Proxy a media request to the asset server
   async proxyToAssetServer(request) {
-    return await proxyToAssetServer(request, this.getR2Url.bind(this));
+    return await proxyToAssetServer(request, this.getR2MediaUrl.bind(this));
   }
 }
 
