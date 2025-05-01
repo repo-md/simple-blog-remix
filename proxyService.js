@@ -23,7 +23,7 @@ export function isMediaRequest(request) {
 function reconstructR2Url(request) {
   const url = new URL(request.url);
   const assetPath = url.pathname.replace(/^\/_medias\//, "");
-  const r2Url = `https://your-r2-bucket.your-region.r2.cloudflarestorage.com/${assetPath}`;
+  const r2Url = `https://r2.repo.md/${assetPath}`;
 
   if (DEBUG) {
     console.log(`[PROXY] Original path: ${url.pathname}`);
