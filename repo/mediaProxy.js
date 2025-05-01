@@ -67,5 +67,3 @@ export async function handleCloudflareRequest(request, getR2MediaUrl) {
   }
 }
 
-// Alias for backward compatibility
-export const proxyToAssetServer = handleCloudflareRequest;

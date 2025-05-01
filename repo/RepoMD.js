@@ -2,10 +2,7 @@
  * RepoMD - A client for interacting with the repo.md API
  */
 
-import {
-  handleCloudflareRequest as handleMediaRequest,
-  proxyToAssetServer,
-} from "./mediaProxy";
+import { handleCloudflareRequest as handleMediaRequest } from "./mediaProxy";
 
 const DEBUG = true;
 
@@ -32,7 +29,7 @@ export class RepoMD {
   }
 
   // Get basic URL with given domain and path
-  getUrl(path = "") {
+  getR2Url(path = "") {
     const domain = "r2.repo.md";
     const url = `https://${domain}/${this.org}/${this.project}/${this.ref}${path}`;
     if (this.debug) {
@@ -41,19 +38,14 @@ export class RepoMD {
     return url;
   }
 
-  // Get R2 URL for a media asset
-  getR2Url(path) {
-    return this.getUrl(`/_media/${path}`);
-  }
-
   // Get URL for the SQLite database
   getSqliteURL() {
-    return this.getUrl("/content.sqlite");
+    return this.getR2Url("/content.sqlite");
   }
 
   // Legacy support for older code
   getR2MediaUrl(path) {
-    return this.getR2Url(path);
+    return this.getR2Url(`/_media/${path}`);
   }
 
   // Fetch all blog posts
@@ -117,30 +109,12 @@ export class RepoMD {
     return this.sortPostsByDate(posts).slice(0, count);
   }
 
-  // Handle Cloudflare requests and media proxying
+  // Handle Cloudflare requests
   async handleCloudflareRequest(request) {
     if (this.debug) {
       console.log(`[RepoMD] Handling Cloudflare request: ${request.url}`);
     }
     return await handleMediaRequest(request, this.getR2MediaUrl.bind(this));
-  }
-  
-  // Alias for backward compatibility - delegates to handleCloudflareRequest
-  async proxyToAssetServer(request) {
-    if (this.debug) {
-      console.log(`[RepoMD] proxyToAssetServer is deprecated, use handleCloudflareRequest instead`);
-    }
-    // Force request to be recognized as a media request by updating path if needed
-    const url = new URL(request.url);
-    if (!url.pathname.startsWith("/_repo/medias/")) {
-      // If this doesn't start with the expected prefix, we need to modify the request
-      // Extract any path parts after the last slash
-      const path = url.pathname.split('/').pop();
-      url.pathname = `/_repo/medias/${path}`;
-      request = new Request(url.toString(), request);
-    }
-    
-    return await this.handleCloudflareRequest(request);
   }
 }
 
