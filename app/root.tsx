@@ -41,5 +41,31 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <div className="flex flex-col min-h-screen">
+      <header className="bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <a href="/" className="text-xl font-bold text-gray-800 dark:text-white">Remix Blog</a>
+          <nav>
+            <ul className="flex space-x-6">
+              <li>
+                <a href="/" className="text-gray-600 hover:text-blue-700 dark:text-gray-300 dark:hover:text-blue-500">Home</a>
+              </li>
+              <li>
+                <a href="/blog" className="text-gray-600 hover:text-blue-700 dark:text-gray-300 dark:hover:text-blue-500">Blog</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+      <footer className="bg-white border-t border-gray-200 dark:bg-gray-800 dark:border-gray-700 py-6">
+        <div className="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
+          <p>© {new Date().getFullYear()} Remix Blog. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  );
 }
