@@ -1,18 +1,20 @@
 // Proxy service for media assets
 
 // Enable debug mode (set to true to see detailed logs)
-const DEBUG = false;
+const DEBUG = true;
 
 // Determines if a request is for a media asset
 export function isMediaRequest(request) {
+  console.log("PROXY DEBUG - isMediaRequest was called", request.url);
   const url = new URL(request.url);
+  console.log("PROXY DEBUG - URL parsed:", url.pathname);
   const isMedia = url.pathname.startsWith("/_medias/");
+  console.log("PROXY DEBUG - Is media request:", isMedia);
 
-  if (DEBUG) {
-    console.log(
-      `[PROXY] Checking media request: ${url.pathname}, result: ${isMedia}`
-    );
-  }
+  // Always log this regardless of DEBUG flag
+  console.log(
+    `[PROXY] Checking media request: ${url.pathname}, result: ${isMedia}`
+  );
 
   return isMedia;
 }

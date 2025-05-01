@@ -12,7 +12,11 @@ export default {
   async fetch(request, env, ctx) {
     try {
       // Check if the request is for a media asset
-      if (isMediaRequest(request)) {
+      console.log("+-+-+-+-+-+-+Request URL:", request.url, 464848484);
+      console.log("+-+-+-+-+-+-+isMediaRequest was called!", JSON.stringify(request.headers, null, 2));
+      const isMedia = isMediaRequest(request);
+      console.log("+-+-+-+-+-+-+isMediaRequest result:", isMedia);
+      if (isMedia) {
         return await proxyToAssetServer(request);
       }
       
