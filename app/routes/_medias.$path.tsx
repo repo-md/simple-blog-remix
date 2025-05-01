@@ -1,18 +1,13 @@
-// Test route for media proxy
+// Route for media asset proxy
 import { LoaderFunction } from "@remix-run/cloudflare";
+import { proxyToAssetServer } from "../../proxyService";
 
-// This is a test route to force Remix to handle _media URLs
+// This route handles media asset requests and proxies them to R2
 export const loader: LoaderFunction = async ({ params, request }) => {
-  console.log("+-+---++ _media ROUTE HANDLER CALLED", params);
-  const path = params.path;
+  console.log("+-+---++ _medias ROUTE HANDLER CALLED", params);
   
-  // Return a simple text response for now
-  return new Response(`Media route handler for: ${path}`, {
-    status: 200,
-    headers: {
-      "Content-Type": "text/plain",
-    },
-  });
+  // Forward to the proxy service
+  return proxyToAssetServer(request);
 };
 
 // No component needed for API endpoint
