@@ -17,14 +17,12 @@ export class RepoMD {
     this.project = project;
     this.ref = ref;
     this.debug = debug;
-    this.postsApiUrl = `https://r2.repo.md/${org}/${project}/${ref}/posts.json`;
 
     if (this.debug) {
       console.log(`[RepoMD] Initialized with:
         - org: ${org}
         - project: ${project}
-        - ref: ${ref}
-        - posts API: ${this.postsApiUrl}`);
+        - ref: ${ref}`);
     }
   }
 
@@ -51,11 +49,13 @@ export class RepoMD {
   // Fetch all blog posts
   async getAllPosts() {
     try {
+      const postsUrl = this.getR2Url("/posts.json");
+      
       if (this.debug) {
-        console.log(`[RepoMD] Fetching posts from: ${this.postsApiUrl}`);
+        console.log(`[RepoMD] Fetching posts from: ${postsUrl}`);
       }
 
-      const response = await fetch(this.postsApiUrl);
+      const response = await fetch(postsUrl);
       if (!response.ok) {
         throw new Error(`Failed to fetch posts: ${response.statusText}`);
       }
