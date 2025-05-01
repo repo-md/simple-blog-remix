@@ -12,7 +12,7 @@ export class RepoMD {
   constructor({
     org = "iplanwebsites",
     project = "680e97604a0559a192640d2c",
-    rev = "68135ef83eb888fca85d2645", // Default to "latest"
+    rev = "latest", // Default to "latest" - BUG: overides passed var
     secret = null,
     debug = false,
     //maxCacheSize = 50,
