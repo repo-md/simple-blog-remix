@@ -16,8 +16,8 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   url.pathname = `/_repo/medias/${mediaPath}`;
   const modifiedRequest = new Request(url.toString(), request);
   
-  // Use the repo client to proxy the request to the asset server
-  return await repo.proxyToAssetServer(modifiedRequest);
+  // Use the repo client to handle the Cloudflare request directly
+  return await repo.handleCloudflareRequest(modifiedRequest);
 };
 
 // No component needed for API endpoint

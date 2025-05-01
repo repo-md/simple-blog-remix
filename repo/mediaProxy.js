@@ -5,12 +5,13 @@
 const MEDIA_URL_PREFIX = "/_repo/medias/";
 const DEBUG = true;
 
-// Check if a request is for a media asset
-export function isMediaRequest(request) {
+// Unified handler for Cloudflare requests
+export async function handleCloudflareRequest(request, getR2MediaUrl) {
   if (DEBUG) {
-    console.log("[MediaProxy] Checking if media request:", request.url);
+    console.log(`[MediaProxy] Handling request: ${request.url}`);
   }
 
+  // Check if request is for a media asset
   const url = new URL(request.url);
   const isMedia = url.pathname.startsWith(MEDIA_URL_PREFIX);
 
@@ -18,36 +19,26 @@ export function isMediaRequest(request) {
     console.log(`[MediaProxy] URL path: ${url.pathname}, isMedia: ${isMedia}`);
   }
 
-  return isMedia;
-}
+  if (!isMedia) {
+    return null; // Not a media request, let other handlers process it
+  }
 
-// Extract media path from the URL
-export function getMediaPathFromRequest(request) {
-  const url = new URL(request.url);
+  if (DEBUG) {
+    console.log(`[MediaProxy] Detected media request, proxying to asset server`);
+  }
+
+  // Get the media path and R2 URL
   const mediaPath = url.pathname.replace(MEDIA_URL_PREFIX, "");
-
   if (DEBUG) {
-    console.log(
-      `[MediaProxy] Extracted media path: ${mediaPath} from ${url.pathname}`
-    );
+    console.log(`[MediaProxy] Extracted media path: ${mediaPath} from ${url.pathname}`);
   }
 
-  return mediaPath;
-}
-
-// Proxy media request to the R2 asset server
-export async function proxyToAssetServer(request, getR2MediaUrl) {
-  if (DEBUG) {
-    console.log(`[MediaProxy] Proxying media request: ${request.url}`);
-  }
-
-  const mediaPath = getMediaPathFromRequest(request);
   const r2Url = getR2MediaUrl(mediaPath);
-
   if (DEBUG) {
     console.log(`[MediaProxy] Proxying to R2 URL: ${r2Url}`);
   }
 
+  // Create and send the asset request
   const assetRequest = new Request(r2Url, {
     method: request.method,
     headers: request.headers,
@@ -57,12 +48,12 @@ export async function proxyToAssetServer(request, getR2MediaUrl) {
 
   try {
     const response = await fetch(assetRequest);
-
     if (DEBUG) {
       console.log(`[MediaProxy] R2 response status: ${response.status}`);
     }
 
-    const newResponse = new Response(response.body, {
+    // Return the response with caching
+    return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
       headers: {
@@ -70,28 +61,11 @@ export async function proxyToAssetServer(request, getR2MediaUrl) {
         "Cache-Control": "public, max-age=31536000", // Cache for 1 year
       },
     });
-
-    return newResponse;
   } catch (error) {
     console.error(`[MediaProxy] Error proxying to asset server:`, error);
     return new Response("Asset not found", { status: 404 });
   }
 }
 
-// Main handler for Cloudflare requests
-export async function handleCloudflareRequest(request, getR2MediaUrl) {
-  if (DEBUG) {
-    console.log(`[MediaProxy] Handling request: ${request.url}`);
-  }
-
-  if (isMediaRequest(request)) {
-    if (DEBUG) {
-      console.log(
-        `[MediaProxy] Detected media request, proxying to asset server`
-      );
-    }
-    return await proxyToAssetServer(request, getR2MediaUrl);
-  }
-
-  return null;
-}
+// Alias for backward compatibility
+export const proxyToAssetServer = handleCloudflareRequest;

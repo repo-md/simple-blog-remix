@@ -117,17 +117,30 @@ export class RepoMD {
     return this.sortPostsByDate(posts).slice(0, count);
   }
 
-  // Handle Cloudflare requests
+  // Handle Cloudflare requests and media proxying
   async handleCloudflareRequest(request) {
     if (this.debug) {
       console.log(`[RepoMD] Handling Cloudflare request: ${request.url}`);
     }
     return await handleMediaRequest(request, this.getR2MediaUrl.bind(this));
   }
-
-  // Proxy a media request to the asset server
+  
+  // Alias for backward compatibility - delegates to handleCloudflareRequest
   async proxyToAssetServer(request) {
-    return await proxyToAssetServer(request, this.getR2MediaUrl.bind(this));
+    if (this.debug) {
+      console.log(`[RepoMD] proxyToAssetServer is deprecated, use handleCloudflareRequest instead`);
+    }
+    // Force request to be recognized as a media request by updating path if needed
+    const url = new URL(request.url);
+    if (!url.pathname.startsWith("/_repo/medias/")) {
+      // If this doesn't start with the expected prefix, we need to modify the request
+      // Extract any path parts after the last slash
+      const path = url.pathname.split('/').pop();
+      url.pathname = `/_repo/medias/${path}`;
+      request = new Request(url.toString(), request);
+    }
+    
+    return await this.handleCloudflareRequest(request);
   }
 }
 
