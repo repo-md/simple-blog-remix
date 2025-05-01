@@ -13,7 +13,8 @@ const repo = new RepoMD({
 
   projectId: "680e97604a0559a192640d2c",
 
-  rev: "68135ef83eb888fca85d2645",
+  // rev: "68135ef83eb888fca85d2645", //SHOULD default to latest if none are passed.
+
   debug: true,
 
   project: "680e97604a0559a192640d2c", //will be retired

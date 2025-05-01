@@ -43,7 +43,7 @@ export default function BlogIndex() {
                     to={`/blog/${post.slug}`}
                     className="text-blue-700 hover:underline dark:text-blue-500"
                   >
-                    {post.frontmatter.title}
+                    {post.frontmatter.title || post.frontmatter.name }
                   </Link>
                 </h2>
                 <p className="text-gray-700 dark:text-gray-300 text-sm mb-4 line-clamp-2 overflow-hidden">{post.firstParagraphText || post.plain}</p>

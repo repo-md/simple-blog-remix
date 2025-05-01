@@ -31,7 +31,7 @@ export class RepoMD {
     this.rev = rev;
     this.debug = debug;
     this.secret = secret;
-    this.latestRevId = null; // Store resolved latest revision ID
+    this.activeRev = null; // Store resolved latest revision ID
 
     // Resize cache if different settings are provided
     //if (maxCacheSize !== lru.maxSize) {
@@ -50,7 +50,7 @@ export class RepoMD {
   // Get basic URL with given domain and path
   getR2Url(path = "") {
     const domain = "r2.repo.md";
-    const resolvedRev = this.rev === "latest" ? this.latestRevId : this.rev;
+    const resolvedRev = this.rev === "latest" ? this.activeRev : this.rev;
     const url = `https://${domain}/${this.orgSlug}/${this.projectId}/${resolvedRev}${path}`;
     if (this.debug) {
       console.log(`[RepoMD] Generated URL: ${url}`);
@@ -77,29 +77,24 @@ export class RepoMD {
     const project = await this.fetchPublicApi(path);
     return project;
   }
+  // Get the latest revision ID
   async getActiveProjectRev() {
     const { activeRev, id } = await this.fetchProjectDetails();
 
     return activeRev;
   }
 
-  // Get the latest revision ID
-  async getLatestRevisionId() {
-    const config = await this.fetchProjectDetails();
-    return config.latest_release?.rev_id || config.latest_release?.id;
-  }
-
   // Ensure latest revision is resolved before making R2 calls
   async ensureLatestRev() {
-    if (this.rev === "latest" && !this.latestRevId) {
-      const latestId = await this.getLatestRevisionId();
+    if (this.rev === "latest" && !this.activeRev) {
+      const latestId = await this.getActiveProjectRev();
       if (!latestId) {
         throw new Error("Could not determine latest revision ID");
       }
-      this.latestRevId = latestId;
+      this.activeRev = latestId;
       if (this.debug) {
         console.log(
-          `[RepoMD] Resolved 'latest' to revision: ${this.latestRevId}`
+          `[RepoMD] Resolved 'latest' to revision: ${this.activeRev}`
         );
       }
     }
