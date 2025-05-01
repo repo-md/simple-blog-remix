@@ -36,6 +36,31 @@ export class RepoMD {
     return url;
   }
 
+  // Helper function to fetch JSON with error handling
+  async fetchJson(
+    url,
+    errorMessage = "Error fetching data",
+    defaultValue = null
+  ) {
+    try {
+      if (this.debug) {
+        console.log(`[RepoMD] Fetching JSON from: ${url}`);
+      }
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`${errorMessage}: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      if (this.debug) {
+        console.error(`[RepoMD] ${errorMessage}:`, error);
+      }
+      return defaultValue;
+    }
+  }
+
   // Get URL for the SQLite database
   getSqliteURL() {
     return this.getR2Url("/content.sqlite");
@@ -46,56 +71,35 @@ export class RepoMD {
     return this.getR2Url(`/_media/${path}`);
   }
 
+  // Fetch a JSON file from R2 storage
+  async fetchR2Json(path, defaultValue = null) {
+    const url = this.getR2Url(path);
+    return await this.fetchJson(url, `Error fetching ${path}`, defaultValue);
+  }
+
   // Fetch all blog posts
   async getAllPosts() {
-    try {
-      const postsUrl = this.getR2Url("/posts.json");
-      
-      if (this.debug) {
-        console.log(`[RepoMD] Fetching posts from: ${postsUrl}`);
-      }
-
-      const response = await fetch(postsUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch posts: ${response.statusText}`);
-      }
-
-      const posts = await response.json();
-      return posts;
-    } catch (error) {
-      console.error("[RepoMD] Error fetching blog posts:", error);
-      return [];
-    }
+    return await this.fetchR2Json("/posts.json", []);
   }
 
   // Get a single blog post by ID
   async getPostById(id) {
-    try {
-      if (this.debug) {
-        console.log(`[RepoMD] Fetching post with ID: ${id}`);
-      }
-
-      const posts = await this.getAllPosts();
-      return posts.find((post) => post.id === id) || null;
-    } catch (error) {
-      console.error(`[RepoMD] Error fetching post with ID ${id}:`, error);
-      return null;
+    if (this.debug) {
+      console.log(`[RepoMD] Fetching post with ID: ${id}`);
     }
+
+    const posts = await this.getAllPosts();
+    return posts?.find((post) => post.id === id) || null;
   }
 
   // Get a single blog post by slug
   async getPostBySlug(slug) {
-    try {
-      if (this.debug) {
-        console.log(`[RepoMD] Fetching post with slug: ${slug}`);
-      }
-
-      const posts = await this.getAllPosts();
-      return posts.find((post) => post.slug === slug) || null;
-    } catch (error) {
-      console.error(`[RepoMD] Error fetching post with slug ${slug}:`, error);
-      return null;
+    if (this.debug) {
+      console.log(`[RepoMD] Fetching post with slug: ${slug}`);
     }
+
+    const posts = await this.getAllPosts();
+    return posts?.find((post) => post.slug === slug) || null;
   }
 
   // Sort posts by date (newest first)
