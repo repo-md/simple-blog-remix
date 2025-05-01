@@ -45,7 +45,7 @@ export default function App() {
     <div className="flex flex-col min-h-screen">
       <header className="bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <a href="/" className="text-xl font-bold text-gray-800 dark:text-white">Repo Blog</a>
+          <a href="/" className="text-xl font-bold text-gray-800 dark:text-white">Repo.md Blog</a>
           <nav>
             <ul className="flex space-x-6">
               <li>
