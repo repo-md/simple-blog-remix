@@ -56,24 +56,21 @@ export default function MediaPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {mediaItems.map((item, index) => (
-            <div key={item.id || `media-item-${index}`} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div key={item.originalPath || `media-item-${index}`} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <div className="aspect-square overflow-hidden bg-gray-200 dark:bg-gray-700">
-                {item.thumbnailUrl ? (
+                
                   <img 
-                    src={item.thumbnailUrl} 
+                    src={item.sizes.sm[0].publicPath} 
                     alt={item.name || 'Media item'} 
                     className="w-full h-full object-cover" 
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
-                    No Preview
-                  </div>
-                )}
+               
               </div>
               <div className="p-4">
-                <h3 className="font-medium text-gray-900 dark:text-white truncate" title={item.name || 'Unnamed file'}>
-                  {item.name || 'Unnamed file'}
+                <h3 className="font-medium text-gray-900 dark:text-white truncate" title={item.fileName || 'Unnamed file'}>
+                  {item.fileName || 'Unnamed file'}
                 </h3>
+                hashPath
                 <div className="mt-1 text-sm text-gray-600 dark:text-gray-400 flex justify-between">
                   <span>{item.type ? item.type.split('/')[1]?.toUpperCase() : 'FILE'}</span>
                   <span>{formatFileSize(item.size || 0)}</span>
