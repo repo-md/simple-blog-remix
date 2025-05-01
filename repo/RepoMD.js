@@ -3,8 +3,10 @@
  * Handles blog posts and media assets
  */
 
-import { handleCloudflareRequest as handleMediaRequest } from "./mediaProxy";
-const { proxyToAssetServer } = await import("./mediaProxy");
+import { 
+  handleCloudflareRequest as handleMediaRequest,
+  proxyToAssetServer
+} from "./mediaProxy";
 
 // Debug flag for detailed logging
 const DEBUG = true;
@@ -159,8 +161,6 @@ export class RepoMD {
    * @returns {Promise<Response>} Cloudflare response
    */
   async proxyToAssetServer(request) {
-    // Import dynamically to avoid circular dependencies
-
     return await proxyToAssetServer(request, this.getR2Url.bind(this));
   }
 }
