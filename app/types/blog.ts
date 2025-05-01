@@ -3,31 +3,75 @@
  */
 
 /**
- * Represents a blog post
+ * Table of contents item
  */
-export interface Post {
-  /**
-   * Unique identifier for the post
-   */
-  id: string;
-  
+export interface TocItem {
+  // Structure will depend on your actual TOC data
+  // This is a placeholder until we know the exact structure
+  [key: string]: any;
+}
+
+/**
+ * Front matter for blog posts
+ */
+export interface Frontmatter {
   /**
    * Post title
    */
   title: string;
   
   /**
-   * Publication date in ISO string format
+   * Whether the post is public
    */
-  date: string;
+  public: boolean;
   
   /**
-   * Short summary of the post
+   * Any other front matter properties
    */
-  excerpt: string;
+  [key: string]: any;
+}
+
+/**
+ * Represents a blog post
+ */
+export interface Post {
+  /**
+   * File name of the post
+   */
+  fileName: string;
   
   /**
-   * Full content of the post
+   * Slug for the post URL
    */
-  content: string;
+  slug: string;
+  
+  /**
+   * Front matter metadata
+   */
+  frontmatter: Frontmatter;
+  
+  /**
+   * First paragraph text
+   */
+  firstParagraphText: string;
+  
+  /**
+   * Plain text content
+   */
+  plain: string;
+  
+  /**
+   * HTML content
+   */
+  html: string;
+  
+  /**
+   * Table of contents
+   */
+  toc: TocItem[];
+  
+  /**
+   * Original file path
+   */
+  originalFilePath: string;
 }

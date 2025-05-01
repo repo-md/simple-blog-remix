@@ -18,22 +18,21 @@ export default function RecentPosts({ posts }: RecentPostsProps) {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (
             <div 
-              key={post.id} 
+              key={post.slug} 
               className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="p-6">
                 <h3 className="text-lg font-semibold mb-2">
                   <Link 
-                    to={`/blog/${post.id}`}
+                    to={`/blog/${post.slug}`}
                     className="text-blue-700 hover:underline dark:text-blue-500"
                   >
-                    {post.title}
+                    {post.frontmatter.title}
                   </Link>
                 </h3>
-                <p className="text-sm text-gray-500 mb-3">{new Date(post.date).toLocaleDateString()}</p>
-                <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">{post.excerpt}</p>
+                <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">{post.plain}</p>
                 <Link 
-                  to={`/blog/${post.id}`}
+                  to={`/blog/${post.slug}`}
                   className="text-sm text-blue-700 hover:underline dark:text-blue-500"
                 >
                   Read more →

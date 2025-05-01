@@ -34,8 +34,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   }
   
   return [
-    { title: data.post.title },
-    { name: "description", content: data.post.excerpt },
+    { title: data.post.frontmatter.title },
+    { name: "description", content: data.post.plain },
   ];
 };
 
@@ -46,29 +46,37 @@ export default function BlogPost() {
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <article>
         <header className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{post.title}</h1>
-          <p className="text-gray-500">
-            {new Date(post.date).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
-          </p>
+          <h1 className="text-3xl font-bold mb-2">{post.frontmatter.title}</h1>
+          <div className="text-sm text-gray-500">
+            From: <code>{post.originalFilePath}</code>
+          </div>
         </header>
         
         <div className="prose prose-lg dark:prose-invert max-w-none">
-          {post.content.split('\n\n').map((paragraph, index) => (
-            <p key={index} className="mb-4">{paragraph}</p>
-          ))}
+          <div dangerouslySetInnerHTML={{ __html: post.html }} />
         </div>
         
+        {post.toc.length > 0 && (
+          <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <h2 className="text-xl font-semibold mb-2">Table of Contents</h2>
+            <ul className="list-disc list-inside">
+              {post.toc.map((item, index) => (
+                <li key={index}>
+                  {/* Render TOC items based on their actual structure */}
+                  {JSON.stringify(item)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <a 
-            href="/blog" 
+          <Link 
+            to="/blog" 
             className="text-blue-700 hover:underline dark:text-blue-500"
           >
             ← Back to all posts
-          </a>
+          </Link>
         </div>
       </article>
     </div>
