@@ -52,7 +52,7 @@ export default function Index() {
         </div>
       </div>
 
-      <RecentPosts posts={posts} />
+      <RecentPosts posts={posts} max={3} />
     </div>
   );
 }

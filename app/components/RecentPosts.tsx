@@ -1,11 +1,13 @@
 import { Link } from "@remix-run/react";
 import type { Post } from "~/types/blog";
+import BlogList from "./BlogList";
 
 interface RecentPostsProps {
   posts: Post[];
+  max?: number;
 }
 
-export default function RecentPosts({ posts }: RecentPostsProps) {
+export default function RecentPosts({ posts, max = 3 }: RecentPostsProps) {
   if (!posts || posts.length === 0) {
     return null;
   }
@@ -15,34 +17,7 @@ export default function RecentPosts({ posts }: RecentPostsProps) {
       <div className="container mx-auto px-4">
         <h2 className="text-2xl font-bold mb-8 text-center">Recent Blog Posts</h2>
         
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <div 
-              key={post.slug} 
-              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="p-6">
-                <h3 className="text-lg font-semibold mb-2">
-                  <Link 
-                  prefetch="viewport" 
-                    to={`/blog/${post.slug}`}
-                    className="text-blue-700 hover:underline dark:text-blue-500"
-                  >
-                    {post.frontmatter.title}
-                  </Link>
-                </h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm mb-4">{post.plain}</p>
-                <Link 
-                prefetch="viewport" 
-                  to={`/blog/${post.slug}`}
-                  className="text-sm text-blue-700 hover:underline dark:text-blue-500"
-                >
-                  Read more →
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+        <BlogList posts={posts} max={max} />
         
         <div className="mt-8 text-center">
           <Link 

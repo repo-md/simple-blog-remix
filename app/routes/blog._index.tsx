@@ -1,9 +1,10 @@
 import { json } from "@remix-run/cloudflare";
-import { Link, useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
+import { useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
 import repo from "../../repo/client";
 import type { Post } from "~/types/blog";
 import ErrorBoundaryComponent from "~/components/ErrorBoundary";
+import BlogList from "~/components/BlogList";
 
 export const meta: MetaFunction = () => {
   return [
@@ -29,36 +30,7 @@ export default function BlogIndex() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Blog Posts</h1>
-      
-      {posts.length === 0 ? (
-        <p>No posts found.</p>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <div key={post.slug} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="p-6">
-                <h2 className="text-xl font-semibold mb-2">
-                  <Link 
-                  prefetch="viewport" 
-                    to={`/blog/${post.slug}`}
-                    className="text-blue-700 hover:underline dark:text-blue-500"
-                  >
-                    {post.frontmatter.title || post.frontmatter.name }
-                  </Link>
-                </h2>
-                <p className="text-gray-700 dark:text-gray-300 text-sm mb-4 line-clamp-2 overflow-hidden">{post.firstParagraphText || post.plain}</p>
-                <Link 
-                prefetch="viewport"  
-                  to={`/blog/${post.slug}`}
-                  className="text-sm text-blue-700 hover:underline dark:text-blue-500"
-                >
-                  Read more →
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <BlogList posts={posts} />
     </div>
   );
 }
