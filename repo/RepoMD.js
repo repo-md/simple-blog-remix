@@ -3,6 +3,7 @@
  */
 
 import { handleCloudflareRequest as handleMediaRequest } from "./mediaProxy";
+import * as frameworkSnippets from "./frameworkSnipets";
 
 import { fetchJson } from "./utils";
 
@@ -216,3 +217,6 @@ export class RepoMD {
 }
 
 export default RepoMD;
+
+// Export all framework snippets
+export { ...frameworkSnippets };
