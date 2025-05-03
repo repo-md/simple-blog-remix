@@ -115,7 +115,7 @@ export class RepoMD {
   // Legacy support for older code
   async getR2MediaUrl(path) {
     await this.ensureLatestRev();
-    const url = this.getR2Url(`/_media/${path}`);
+    const url = this.getR2Url(`/_medias/${path}`);
     return url; // Ensure we return the resolved string, not a Promise
   }
 
@@ -219,4 +219,4 @@ export class RepoMD {
 export default RepoMD;
 
 // Export all framework snippets
-export { ...frameworkSnippets };
+export { frameworkSnippets };

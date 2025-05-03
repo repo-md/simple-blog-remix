@@ -1,6 +1,6 @@
 import { json } from "@remix-run/cloudflare";
 import { useLoaderData, useRouteError, isRouteErrorResponse } from "@remix-run/react";
-import repo from "../../repo/client";
+import repo from "../../repo";
 import type { LoaderFunction, MetaFunction } from "@remix-run/cloudflare";
 import ErrorBoundaryComponent from "~/components/ErrorBoundary";
 
