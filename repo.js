@@ -3,7 +3,7 @@
  * This ensures we're using a single consistent client with the same configuration.
  */
 
-import RepoMD from "./repo/index.js";
+import RepoMD from "./repo-old-local-copy/index.js";
 
 // Create and export a singleton instance of the RepoMD client
 const repo = new RepoMD({
