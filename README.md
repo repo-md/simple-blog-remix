@@ -1,7 +1,9 @@
-# Welcome to Remix + Cloudflare Workers!
+# Welcome to Repo.md + Remix + Cloudflare Workers!
 
+simple-blog-remix.repo.md
+
+- 📖 [Repo.md docs](https://repo.md/docs)
 - 📖 [Remix docs](https://remix.run/docs)
-- 📖 [Remix Cloudflare docs](https://remix.run/guides/vite#cloudflare)
 
 ## Development
 
