@@ -1,14 +1,14 @@
 import type { MetaFunction, LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, Link } from "@remix-run/react";
 import repo from "../../repo";
 import RecentPosts from "~/components/RecentPosts";
 import type { Post } from "~/types/blog";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Remo.md Remix Blog template- Home" },
-    { name: "description", content: "Welcome to our Remix Blog!" },
+    { title: "Remo.md Simple Blog theme " },
+    { name: "description", content: "Welcome to our repo.md Blog!" },
   ];
 };
 
@@ -27,32 +27,47 @@ export default function Index() {
 
   return (
     <div>
-      <div className="py-20 bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+      <div className="py-12 bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Welcome to Remix Blog
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            My Blog
           </h1>
-          <p className="text-xl md:text-2xl max-w-2xl mx-auto">
-            A demo blog built with Remix, React, and Tailwind CSS
-          </p>
         </div>
       </div>
 
-      <div className="py-16 container mx-auto px-4">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100">About This Blog</h2>
-          <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
-            This is a demo blog application that shows how to build a dynamic blog with Remix. 
-            It uses a JSON file as a data source and demonstrates how to create dynamic routes for blog posts.
-          </p>
-          <p className="text-lg text-gray-700 dark:text-gray-300">
-            The blog posts are fetched from an external API and displayed with proper formatting.
-            This demonstrates how to use Remix's loader functions to fetch and display dynamic content.
-          </p>
+      {posts.length > 0 && (
+        <div className="py-10 container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-lg">
+              <div className="p-8">
+                <h2 className="text-2xl md:text-3xl font-bold mb-4">
+                  <Link 
+                    prefetch="viewport" 
+                    to={`/blog/${posts[0].slug}`}
+                    className="text-blue-700 hover:underline dark:text-blue-500"
+                  >
+                    {posts[0].frontmatter.title || posts[0].frontmatter.name}
+                  </Link>
+                </h2>
+                <p className="text-lg text-gray-700 dark:text-gray-300 mb-6">
+                  {posts[0].firstParagraphText || posts[0].plain}
+                </p>
+                <Link 
+                  prefetch="viewport"  
+                  to={`/blog/${posts[0].slug}`}
+                  className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  Read full article
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
-      <RecentPosts posts={posts} max={3} />
+      {posts.length > 1 && (
+        <RecentPosts posts={posts.slice(1)} max={2} />
+      )}
     </div>
   );
 }
