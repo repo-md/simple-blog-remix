@@ -5,7 +5,7 @@
 
 //import RepoMD from "./repo-old-local-copy/index.js";
 // import RepoMD from "../repo-client/src/lib/index.js";
-import RepoMD from "repo-md";
+import { RepoMD } from "repo-md";
 // Create and export a singleton instance of the RepoMD client
 const repo = new RepoMD({
   orgSlug: "iplanwebsites",

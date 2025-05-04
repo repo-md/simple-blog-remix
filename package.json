@@ -10,7 +10,8 @@
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "wrangler dev",
     "typecheck": "tsc",
-    "typegen": "wrangler types"
+    "typegen": "wrangler types",
+    "up": "npm i repo-md@latest"
   },
   "dependencies": {
     "@remix-run/cloudflare": "^2.16.5",
@@ -20,7 +21,7 @@
     "quick-lru": "^7.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "repo-md": "^0.0.3"
+    "repo-md": "^0.0.5"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241022.0",
